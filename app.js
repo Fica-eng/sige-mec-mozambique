@@ -242,7 +242,7 @@ function escolas() {
     <div class="search-bar">
       <input class="search-input" placeholder="Pesquisar por nome, província, distrito..." oninput="filterEscolas(this.value)" id="escola-search"/>
       <select style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);padding:10px 12px;font-family:var(--font-sans);font-size:13px;">
-        <option>Todos os Tipos</option><option>Primária</option><option>Secundária</option>
+        <option>Todos os Tipos</option><option>Primária</option><option>Básica</option><option>Secundária</option>
       </select>
       <button class="btn btn-primary" onclick="showModalEscola()">+ Nova Escola</button>
     </div>
@@ -261,7 +261,7 @@ function escolas() {
             <tr>
               <td><strong style="color:var(--text-primary)">${e.nome}</strong><br><span style="font-size:11px;color:var(--text-muted)">${e.distrito}</span></td>
               <td>${e.provincia}</td>
-              <td><span class="badge ${e.tipo === 'Primária' ? 'badge-blue' : 'badge-gold'}">${e.tipo}</span></td>
+              <td><span class="badge ${e.tipo === 'Primária' ? 'badge-blue' : e.tipo === 'Básica' ? 'badge-green' : 'badge-gold'}">${e.tipo}</span></td>
               <td>${fmt(e.alunos)}</td>
               <td>${e.professores}</td>
               <td><span class="badge ${e.aprov >= 75 ? 'badge-green' : e.aprov >= 65 ? 'badge-gold' : 'badge-red'}">${e.aprov}%</span></td>
@@ -811,7 +811,7 @@ function showModalEscola() {
       <div class="modal-title">Registar Nova Escola</div>
       <div class="modal-grid">
         <div class="form-group"><label>Nome da Escola</label><input type="text" placeholder="Ex: EB Samora Machel"/></div>
-        <div class="form-group"><label>Tipo</label><select><option>Primária</option><option>Secundária</option></select></div>
+        <div class="form-group"><label>Tipo</label><select><option>Primária</option><option>Básica</option><option>Secundária</option></select></div>
         <div class="form-group"><label>Província</label><select>
           <option>Maputo Cidade</option><option>Maputo Prov.</option><option>Gaza</option>
           <option>Inhambane</option><option>Sofala</option><option>Manica</option>
