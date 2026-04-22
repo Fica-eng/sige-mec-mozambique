@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGE — Sistema de Gestão Educacional | MEC Moçambique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-bg">
+    <div class="login-stripes"></div>
+    <div class="mz-flag-colors"></div>
+  </div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-emblem">
+        <span class="logo-star">★</span>
+      </div>
+      <div class="login-brand">
+        <span class="brand-acronym">SIGE</span>
+        <span class="brand-full">Sistema de Gestão Educacional</span>
+        <span class="brand-ministry">Ministério da Educação e Cultura</span>
+        <span class="brand-country">República de Moçambique</span>
+      </div>
+    </div>
+
+    <div class="login-form">
+      <h2>Acesso ao Sistema</h2>
+      <div class="form-group">
+        <label>Utilizador</label>
+        <input type="text" id="login-user" placeholder="admin@mec.gov.mz" value="admin@mec.gov.mz"/>
+      </div>
+      <div class="form-group">
+        <label>Palavra-passe</label>
+        <input type="password" id="login-pass" placeholder="••••••••" value="admin123"/>
+      </div>
+      <div class="form-group">
+        <label>Perfil de Acesso</label>
+        <select id="login-role">
+          <option value="admin">Admin MEC</option>
+          <option value="coordenador">Coordenador Regional</option>
+          <option value="diretor">Diretor de Escola</option>
+          <option value="professor">Professor</option>
+        </select>
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar no Sistema</button>
+      <p class="login-note">Sistema protegido • Apenas utilizadores autorizados</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="app hidden">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="sidebar-star">★</span>
+        <div>
+          <span class="sidebar-title">SIGE</span>
+          <span class="sidebar-sub">MEC Moçambique</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <a href="#" class="nav-item active" data-page="dashboard" onclick="navigate(this)">
+        <span class="nav-icon">◈</span><span class="nav-text">Dashboard</span>
+      </a>
+
+      <div class="nav-section-label">Gestão</div>
+      <a href="#" class="nav-item" data-page="escolas" onclick="navigate(this)">
+        <span class="nav-icon">⊞</span><span class="nav-text">Escolas</span>
+      </a>
+      <a href="#" class="nav-item" data-page="alunos" onclick="navigate(this)">
+        <span class="nav-icon">◉</span><span class="nav-text">Alunos</span>
+      </a>
+      <a href="#" class="nav-item" data-page="professores" onclick="navigate(this)">
+        <span class="nav-icon">◎</span><span class="nav-text">Professores</span>
+      </a>
+      <a href="#" class="nav-item" data-page="notas" onclick="navigate(this)">
+        <span class="nav-icon">◇</span><span class="nav-text">Notas e Avaliações</span>
+      </a>
+
+      <div class="nav-section-label">Análise</div>
+      <a href="#" class="nav-item" data-page="matriculas" onclick="navigate(this)">
+        <span class="nav-icon">▣</span><span class="nav-text">Estatísticas de Matrículas</span>
+      </a>
+      <a href="#" class="nav-item" data-page="desempenho" onclick="navigate(this)">
+        <span class="nav-icon">▲</span><span class="nav-text">Desempenho Acadêmico</span>
+      </a>
+      <a href="#" class="nav-item" data-page="evasao" onclick="navigate(this)">
+        <span class="nav-icon">◬</span><span class="nav-text">Evasão Escolar</span>
+      </a>
+      <a href="#" class="nav-item" data-page="rh" onclick="navigate(this)">
+        <span class="nav-icon">⊕</span><span class="nav-text">Recursos Humanos</span>
+      </a>
+
+      <div class="nav-section-label">Sistema</div>
+      <a href="#" class="nav-item" data-page="relatorios" onclick="navigate(this)">
+        <span class="nav-icon">≡</span><span class="nav-text">Relatórios</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div class="user-info">
+          <span class="user-name" id="user-name">Admin MEC</span>
+          <span class="user-role" id="user-role-label">Administrador</span>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <span class="breadcrumb" id="breadcrumb">MEC / Dashboard</span>
+      </div>
+      <div class="top-bar-right">
+        <div class="filter-bar">
+          <select id="filter-year" onchange="applyFilters()">
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+          <select id="filter-provincia" onchange="applyFilters()">
+            <option value="">Todas as Províncias</option>
+            <option value="maputo">Maputo</option>
+            <option value="gaza">Gaza</option>
+            <option value="inhambane">Inhambane</option>
+            <option value="sofala">Sofala</option>
+            <option value="manica">Manica</option>
+            <option value="tete">Tete</option>
+            <option value="zambezia">Zambézia</option>
+            <option value="nampula">Nampula</option>
+            <option value="niassa">Niassa</option>
+            <option value="cabo-delgado">Cabo Delgado</option>
+          </select>
+        </div>
+        <div class="top-date" id="top-date"></div>
+      </div>
+    </header>
+
+    <div class="page-content" id="page-content">
+      <!-- Content rendered by JS -->
+    </div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
