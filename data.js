@@ -54,23 +54,23 @@ const DATA = {
   },
 
   distribuicaoPorNivel: {
-    niveis: ["EP1 (1ª–5ª)", "EP2 (6ª–7ª)", "ESG1 (8ª–10ª)", "ESG2 (11ª–12ª)"],
-    alunos: [3841200, 1204600, 872400, 323630]
+    niveis: ["Primária (EPC)", "Básica (EB)", "Sec. Geral (ESG1)", "Sec. Técnica (ESG2)"],
+    alunos: [3241200, 1804600, 872400, 323630]
   },
 
   escolas: [
-    { id: 1,  nome: "EB 25 de Setembro",         provincia: "Maputo Cidade", distrito: "KaMpfumu",  tipo: "Primária",   alunos: 1842, professores: 48, aprov: 87.2 },
-    { id: 2,  nome: "Escola Secundária Josina",    provincia: "Maputo Cidade", distrito: "KaMaxakeni", tipo: "Secundária", alunos: 2156, professores: 62, aprov: 81.4 },
-    { id: 3,  nome: "EB Eduardo Mondlane",        provincia: "Gaza",          distrito: "Xai-Xai",    tipo: "Primária",   alunos: 1234, professores: 34, aprov: 74.8 },
-    { id: 4,  nome: "EPC Samora Machel",           provincia: "Nampula",       distrito: "Nampula",    tipo: "Primária",   alunos: 2341, professores: 58, aprov: 69.1 },
-    { id: 5,  nome: "Escola Sec. de Nacala",      provincia: "Nampula",       distrito: "Nacala",     tipo: "Secundária", alunos: 1876, professores: 51, aprov: 66.8 },
-    { id: 6,  nome: "EB Frelimo",                  provincia: "Zambézia",      distrito: "Quelimane",  tipo: "Primária",   alunos: 1654, professores: 43, aprov: 63.4 },
-    { id: 7,  nome: "Escola Sec. da Beira",       provincia: "Sofala",        distrito: "Beira",      tipo: "Secundária", alunos: 2098, professores: 57, aprov: 76.9 },
-    { id: 8,  nome: "EPC Kwame Nkrumah",           provincia: "Tete",          distrito: "Tete",       tipo: "Primária",   alunos: 1432, professores: 38, aprov: 71.2 },
-    { id: 9,  nome: "Escola Sec. de Chimoio",     provincia: "Manica",        distrito: "Chimoio",    tipo: "Secundária", alunos: 1789, professores: 49, aprov: 73.6 },
-    { id: 10, nome: "EB Agosto de 1975",           provincia: "Inhambane",     distrito: "Inhambane",  tipo: "Primária",   alunos: 1123, professores: 31, aprov: 78.1 },
-    { id: 11, nome: "EPC Julius Nyerere",          provincia: "Niassa",        distrito: "Lichinga",   tipo: "Primária",   alunos: 987,  professores: 27, aprov: 61.8 },
-    { id: 12, nome: "Escola Sec. de Pemba",       provincia: "Cabo Delgado",  distrito: "Pemba",      tipo: "Secundária", alunos: 1456, professores: 41, aprov: 59.4 },
+    { id: 1,  nome: "EPC 25 de Setembro",           provincia: "Maputo Cidade", distrito: "KaMpfumu",   tipo: "Primária",   alunos: 1842, professores: 48, aprov: 87.2 },
+    { id: 2,  nome: "Escola Secundária Josina",     provincia: "Maputo Cidade", distrito: "KaMaxakeni", tipo: "Secundária", alunos: 2156, professores: 62, aprov: 81.4 },
+    { id: 3,  nome: "EB Eduardo Mondlane",          provincia: "Gaza",          distrito: "Xai-Xai",    tipo: "Básica",     alunos: 1234, professores: 34, aprov: 74.8 },
+    { id: 4,  nome: "EPC Samora Machel",            provincia: "Nampula",       distrito: "Nampula",    tipo: "Primária",   alunos: 2341, professores: 58, aprov: 69.1 },
+    { id: 5,  nome: "Escola Sec. de Nacala",        provincia: "Nampula",       distrito: "Nacala",     tipo: "Secundária", alunos: 1876, professores: 51, aprov: 66.8 },
+    { id: 6,  nome: "EB Frelimo",                   provincia: "Zambézia",      distrito: "Quelimane",  tipo: "Básica",     alunos: 1654, professores: 43, aprov: 63.4 },
+    { id: 7,  nome: "Escola Sec. da Beira",         provincia: "Sofala",        distrito: "Beira",      tipo: "Secundária", alunos: 2098, professores: 57, aprov: 76.9 },
+    { id: 8,  nome: "EB Kwame Nkrumah",             provincia: "Tete",          distrito: "Tete",       tipo: "Básica",     alunos: 1432, professores: 38, aprov: 71.2 },
+    { id: 9,  nome: "Escola Sec. de Chimoio",       provincia: "Manica",        distrito: "Chimoio",    tipo: "Secundária", alunos: 1789, professores: 49, aprov: 73.6 },
+    { id: 10, nome: "EPC Agosto de 1975",           provincia: "Inhambane",     distrito: "Inhambane",  tipo: "Primária",   alunos: 1123, professores: 31, aprov: 78.1 },
+    { id: 11, nome: "EB Julius Nyerere",            provincia: "Niassa",        distrito: "Lichinga",   tipo: "Básica",     alunos: 987,  professores: 27, aprov: 61.8 },
+    { id: 12, nome: "Escola Sec. de Pemba",         provincia: "Cabo Delgado",  distrito: "Pemba",      tipo: "Secundária", alunos: 1456, professores: 41, aprov: 59.4 },
   ],
 
   alunos: [
