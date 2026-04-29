@@ -437,109 +437,74 @@ setInterval(setDate, 60000);
 // ============================================================
 // FORMULÁRIOS REAIS — REGISTAR ESCOLA
 // ============================================================
+
+// ============================================================
+// FORMULÁRIOS REAIS — SEM TEMPLATE LITERALS
+// ============================================================
+
+// Modal Escola Completo
 function showModalEscolaCompleto() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
-  o.innerHTML = `
-    <div class="modal" style="max-width:680px">
-      <div class="modal-title">Registar Nova Escola</div>
-      <div class="modal-grid">
-        <div class="form-group">
-          <label>Código da Escola *</label>
-          <input type="text" id="me-codigo" placeholder="Ex: ZB-010" maxlength="20"/>
-        </div>
-        <div class="form-group">
-          <label>Tipo de Escola *</label>
-          <select id="me-tipo">
-            <option value="PRIMARIA">Primária (EPC)</option>
-            <option value="BASICA">Básica (EB)</option>
-            <option value="SECUNDARIA">Secundária</option>
-          </select>
-        </div>
-        <div class="form-group" style="grid-column:1/-1">
-          <label>Nome Completo da Escola *</label>
-          <input type="text" id="me-nome" placeholder="Ex: Escola Primária Completa 25 de Setembro"/>
-        </div>
-        <div class="form-group">
-          <label>Província *</label>
-          <select id="me-prov" onchange="carregarDistritos(this.value)">
-            <option value="">-- Seleccione --</option>
-            <option value="1">Maputo Cidade</option>
-            <option value="2">Maputo Província</option>
-            <option value="3">Gaza</option>
-            <option value="4">Inhambane</option>
-            <option value="5">Sofala</option>
-            <option value="6">Manica</option>
-            <option value="7">Tete</option>
-            <option value="8">Zambézia</option>
-            <option value="9">Nampula</option>
-            <option value="10">Niassa</option>
-            <option value="11">Cabo Delgado</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Distrito *</label>
-          <select id="me-dist"><option value="">-- Seleccione Província primeiro --</option></select>
-        </div>
-        <div class="form-group">
-          <label>Localidade / Bairro</label>
-          <input type="text" id="me-local" placeholder="Ex: Bairro Central"/>
-        </div>
-        <div class="form-group">
-          <label>Endereço</label>
-          <input type="text" id="me-end" placeholder="Ex: Av. Eduardo Mondlane, nº 123"/>
-        </div>
-        <div class="form-group">
-          <label>Telefone (+258)</label>
-          <input type="tel" id="me-tel" placeholder="Ex: +258 21 000 000" maxlength="20"/>
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="me-email" placeholder="escola@mec.gov.mz"/>
-        </div>
-        <div class="form-group">
-          <label>Latitude (GPS)</label>
-          <input type="number" id="me-lat" placeholder="Ex: -25.9692" step="0.0001"/>
-        </div>
-        <div class="form-group">
-          <label>Longitude (GPS)</label>
-          <input type="number" id="me-lng" placeholder="Ex: 32.5732" step="0.0001"/>
-        </div>
-      </div>
-      <div id="me-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-primary" id="me-btn" onclick="submeterEscola()">Guardar Escola</button>
-      </div>
-    </div>`;
-  o.addEventListener('click', function(ev){ if(ev.target===o) o.remove(); });
+
+  var html = '';
+  html += '<div class="modal" style="max-width:680px">';
+  html += '<div class="modal-title">Registar Nova Escola</div>';
+  html += '<div class="modal-grid">';
+  html += '<div class="form-group"><label>Código *</label><input type="text" id="me-codigo" placeholder="Ex: ZB-010" maxlength="20"/></div>';
+  html += '<div class="form-group"><label>Tipo *</label><select id="me-tipo">';
+  html += '<option value="PRIMARIA">Primária (EPC)</option>';
+  html += '<option value="BASICA">Básica (EB)</option>';
+  html += '<option value="SECUNDARIA">Secundária</option>';
+  html += '</select></div>';
+  html += '<div class="form-group" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="me-nome" placeholder="Ex: EPC 25 de Setembro"/></div>';
+  html += '<div class="form-group"><label>Província *</label><select id="me-prov" onchange="carregarDistritos(this.value)">';
+  html += '<option value="">-- Seleccione --</option>';
+  html += '<option value="1">Maputo Cidade</option>';
+  html += '<option value="2">Maputo Província</option>';
+  html += '<option value="3">Gaza</option>';
+  html += '<option value="4">Inhambane</option>';
+  html += '<option value="5">Sofala</option>';
+  html += '<option value="6">Manica</option>';
+  html += '<option value="7">Tete</option>';
+  html += '<option value="8">Zambézia</option>';
+  html += '<option value="9">Nampula</option>';
+  html += '<option value="10">Niassa</option>';
+  html += '<option value="11">Cabo Delgado</option>';
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Distrito *</label><select id="me-dist"><option value="">-- Seleccione Província --</option></select></div>';
+  html += '<div class="form-group"><label>Localidade</label><input type="text" id="me-local" placeholder="Ex: Bairro Central"/></div>';
+  html += '<div class="form-group"><label>Endereço</label><input type="text" id="me-end" placeholder="Ex: Av. Eduardo Mondlane, 123"/></div>';
+  html += '<div class="form-group"><label>Telefone</label><input type="tel" id="me-tel" placeholder="+258 21 000 000" maxlength="20"/></div>';
+  html += '<div class="form-group"><label>Email</label><input type="email" id="me-email" placeholder="escola@mec.gov.mz"/></div>';
+  html += '<div class="form-group"><label>Latitude (GPS)</label><input type="number" id="me-lat" placeholder="-25.9692" step="0.0001"/></div>';
+  html += '<div class="form-group"><label>Longitude (GPS)</label><input type="number" id="me-lng" placeholder="32.5732" step="0.0001"/></div>';
+  html += '</div>';
+  html += '<div id="me-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>';
+  html += '<div class="modal-footer">';
+  html += '<button class="btn btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancelar</button>';
+  html += '<button class="btn btn-primary" id="me-btn" onclick="submeterEscola()">Guardar Escola</button>';
+  html += '</div></div>';
+
+  o.innerHTML = html;
+  o.addEventListener('click', function(ev) { if (ev.target === o) o.remove(); });
   document.body.appendChild(o);
 }
 
 async function carregarDistritos(provId) {
-  if (!provId) return;
   var sel = document.getElementById('me-dist');
-  sel.innerHTML = '<option>A carregar...</option>';
-  var data = await api('/escolas?provinciaId=' + provId + '&limit=1');
-  // Buscar distritos via escolas existentes nessa província
-  var provData = await api('/estatisticas/matriculas-por-provincia');
-  // Como não temos endpoint de distritos, usar lista fixa por província
-  var distritos = {
-    1:['KaMpfumu','KaMaxakeni','KaMavota','KaMubukwana','KaNyaka'],
-    2:['Matola','Boane','Magude','Manhiça','Marracuene','Matutuíne','Moamba','Namaacha'],
-    3:['Xai-Xai','Bilene','Chibuto','Chicualacuala','Chigubo','Chokwé','Guijá','Limpopo','Mabalane','Mandlakazi','Massangena','Massingir'],
-    4:['Inhambane','Funhalouro','Govuro','Homoíne','Inharrime','Inhassoro','Jangamo','Mabote','Massinga','Maxixe','Morrumbene','Panda','Vilankulo','Zavala'],
-    5:['Beira','Búzi','Chibabava','Chimanimani','Dondo','Gorongosa','Machanga','Maringué','Muanza','Nhamatanda'],
-    6:['Chimoio','Báruè','Gondola','Guro','Machaze','Macossa','Mossurize','Sussundenga','Tambara','Vanduzi'],
-    7:['Tete','Angónia','Cahora-Bassa','Changara','Chifunde','Chiuta','Dôa','Macanga','Marávia','Moatize','Mutarara','Tsangano','Zumbo'],
-    8:['Quelimane','Alto Molócuè','Chinde','Gilé','Guruè','Ile','Inhassunge','Luabo','Lugela','Maganja da Costa','Milange','Mocuba','Mopeia','Morrumbala','Namacurra','Namarrói','Nicoadala','Pebane'],
-    9:['Nampula','Angoche','Eráti','Lalaua','Larde','Liúpo','Malema','Meconta','Mecubúri','Memba','Mogincual','Mogovolas','Moma','Monapo','Mossuril','Murrupula','Nacala','Nacala-a-Velha','Nacarôa','Rapale','Ribáuè'],
-    10:['Lichinga','Chimbunila','Cuamba','Lago','Majune','Mandimba','Marrupa','Maúa','Mavago','Mecanhelas','Mecula','Metarica','Muembe','Ngauma','Nipepe','Sanga'],
-    11:['Pemba','Ancuabe','Balama','Chiúre','Ibo','Macomia','Mecúfi','Meluco','Metuge','Mocímboa da Praia','Montepuez','Mueda','Muidumbe','Namuno','Nangade','Palma','Quissanga']
-  };
-  var lista = distritos[parseInt(provId)] || [];
-  sel.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
-    lista.map(function(d,i){ return '<option value="'+(parseInt(provId)*100+i+1)+'">'+d+'</option>'; }).join('');
+  if (!provId) { sel.innerHTML = '<option value="">-- Seleccione Província --</option>'; return; }
+  sel.innerHTML = '<option value="">A carregar...</option>';
+  var data = await api('/distritos?provinciaId=' + provId);
+  if (!data || !data.length) {
+    sel.innerHTML = '<option value="">Sem distritos</option>';
+    return;
+  }
+  var opts = '<option value="">-- Seleccione Distrito --</option>';
+  data.forEach(function(d) {
+    opts += '<option value="' + d.id + '">' + d.nome + '</option>';
+  });
+  sel.innerHTML = opts;
 }
 
 async function submeterEscola() {
@@ -552,93 +517,83 @@ async function submeterEscola() {
   var provId = document.getElementById('me-prov').value;
   var distId = document.getElementById('me-dist').value;
 
-  if (!codigo) { erroEl.textContent='Código obrigatório'; erroEl.style.display='block'; return; }
-  if (!nome)   { erroEl.textContent='Nome obrigatório';   erroEl.style.display='block'; return; }
-  if (!provId) { erroEl.textContent='Seleccione a Província'; erroEl.style.display='block'; return; }
-  if (!distId) { erroEl.textContent='Seleccione o Distrito';  erroEl.style.display='block'; return; }
+  if (!codigo) { erroEl.textContent = 'Código obrigatório'; erroEl.style.display = 'block'; return; }
+  if (!nome)   { erroEl.textContent = 'Nome obrigatório';   erroEl.style.display = 'block'; return; }
+  if (!provId) { erroEl.textContent = 'Seleccione a Província'; erroEl.style.display = 'block'; return; }
+  if (!distId) { erroEl.textContent = 'Seleccione o Distrito';  erroEl.style.display = 'block'; return; }
 
   var btn = document.getElementById('me-btn');
   btn.textContent = 'A guardar...'; btn.disabled = true;
 
+  var lat = parseFloat(document.getElementById('me-lat').value);
+  var lng = parseFloat(document.getElementById('me-lng').value);
+
   var body = {
-    codigo: codigo, nome: nome, tipo: tipo,
+    codigo: codigo,
+    nome: nome,
+    tipo: tipo,
     provinciaId: parseInt(provId),
     distritoId:  parseInt(distId),
     localidade:  document.getElementById('me-local').value.trim() || null,
     endereco:    document.getElementById('me-end').value.trim()   || null,
     telefone:    document.getElementById('me-tel').value.trim()   || null,
     email:       document.getElementById('me-email').value.trim() || null,
-    latitude:    parseFloat(document.getElementById('me-lat').value)  || null,
-    longitude:   parseFloat(document.getElementById('me-lng').value)  || null,
+    latitude:    isNaN(lat) ? null : lat,
+    longitude:   isNaN(lng) ? null : lng,
   };
 
-  var r = await api('/escolas', { method:'POST', body: JSON.stringify(body) });
+  var r = await api('/escolas', { method: 'POST', body: JSON.stringify(body) });
   if (r && r.id) {
     document.querySelector('.modal-overlay').remove();
     mostrarSucesso('Escola "' + r.nome + '" registada com sucesso!');
     escolas();
   } else {
-    erroEl.textContent = r && r.error ? r.error : 'Erro ao guardar. Verifique os dados.';
+    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar. Verifique os dados.';
     erroEl.style.display = 'block';
     btn.textContent = 'Guardar Escola'; btn.disabled = false;
   }
 }
 
 // ============================================================
-// FORMULÁRIO — REGISTAR ALUNO
+// Modal Aluno Completo
 // ============================================================
 function showModalAlunoCompleto() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
-  o.innerHTML = `
-    <div class="modal" style="max-width:680px">
-      <div class="modal-title">Registar Novo Aluno / Nova Matrícula</div>
-      <div class="modal-grid">
-        <div class="form-group">
-          <label>Nome *</label>
-          <input type="text" id="ma-nome" placeholder="Ex: Ana Beatriz"/>
-        </div>
-        <div class="form-group">
-          <label>Apelido *</label>
-          <input type="text" id="ma-apelido" placeholder="Ex: Machava"/>
-        </div>
-        <div class="form-group">
-          <label>Nº BI / Cédula Pessoal</label>
-          <input type="text" id="ma-bi" placeholder="Ex: 123456789MZ" maxlength="20"/>
-          <small style="color:var(--text-muted);font-size:10px">Formato: dígitos + MZ (ex: 123456789MZ)</small>
-        </div>
-        <div class="form-group">
-          <label>Data de Nascimento *</label>
-          <input type="date" id="ma-nasc" max="${new Date().toISOString().split('T')[0]}"/>
-        </div>
-        <div class="form-group">
-          <label>Género *</label>
-          <select id="ma-gen">
-            <option value="M">Masculino</option>
-            <option value="F">Feminino</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>ID da Escola *</label>
-          <input type="number" id="ma-escola" placeholder="Nº da escola no sistema" min="1"/>
-          <small style="color:var(--text-muted);font-size:10px">Ver na lista de escolas</small>
-        </div>
-        <div class="form-group">
-          <label>ID da Turma (opcional)</label>
-          <input type="number" id="ma-turma" placeholder="Para matricular já numa turma" min="1"/>
-        </div>
-        <div class="form-group">
-          <label>Ano Lectivo *</label>
-          <input type="number" id="ma-ano" value="${new Date().getFullYear()}" min="2000" max="2099"/>
-        </div>
-      </div>
-      <div id="ma-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-primary" id="ma-btn" onclick="submeterAluno()">Guardar Aluno</button>
-      </div>
-    </div>`;
-  o.addEventListener('click', function(ev){ if(ev.target===o) o.remove(); });
+
+  var hoje = new Date().toISOString().split('T')[0];
+  var anoAtual = new Date().getFullYear();
+
+  var html = '';
+  html += '<div class="modal" style="max-width:680px">';
+  html += '<div class="modal-title">Registar Novo Aluno / Nova Matrícula</div>';
+  html += '<div class="modal-grid">';
+  html += '<div class="form-group"><label>Nome *</label><input type="text" id="ma-nome" placeholder="Ex: Ana Beatriz"/></div>';
+  html += '<div class="form-group"><label>Apelido *</label><input type="text" id="ma-apelido" placeholder="Ex: Machava"/></div>';
+  html += '<div class="form-group"><label>Nº BI / Cédula Pessoal</label>';
+  html += '<input type="text" id="ma-bi" placeholder="Ex: 123456789MZ" maxlength="20"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">Formato: 9 dígitos + letras (ex: 123456789MZ)</small></div>';
+  html += '<div class="form-group"><label>Data de Nascimento *</label>';
+  html += '<input type="date" id="ma-nasc" max="' + hoje + '"/></div>';
+  html += '<div class="form-group"><label>Género *</label><select id="ma-gen">';
+  html += '<option value="M">Masculino</option><option value="F">Feminino</option>';
+  html += '</select></div>';
+  html += '<div class="form-group"><label>ID da Escola *</label>';
+  html += '<input type="number" id="ma-escola" placeholder="Ver na lista de escolas" min="1"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">Consulte o ID na lista de Escolas</small></div>';
+  html += '<div class="form-group"><label>ID da Turma (opcional)</label>';
+  html += '<input type="number" id="ma-turma" placeholder="Para matricular numa turma" min="1"/></div>';
+  html += '<div class="form-group"><label>Ano Lectivo *</label>';
+  html += '<input type="number" id="ma-ano" value="' + anoAtual + '" min="2000" max="2099"/></div>';
+  html += '</div>';
+  html += '<div id="ma-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>';
+  html += '<div class="modal-footer">';
+  html += '<button class="btn btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancelar</button>';
+  html += '<button class="btn btn-primary" id="ma-btn" onclick="submeterAluno()">Guardar Aluno</button>';
+  html += '</div></div>';
+
+  o.innerHTML = html;
+  o.addEventListener('click', function(ev) { if (ev.target === o) o.remove(); });
   document.body.appendChild(o);
 }
 
@@ -652,125 +607,96 @@ async function submeterAluno() {
   var gen     = document.getElementById('ma-gen').value;
   var escola  = document.getElementById('ma-escola').value;
   var bi      = document.getElementById('ma-bi').value.trim();
+  var turmaId = document.getElementById('ma-turma').value;
+  var anoLetivo = parseInt(document.getElementById('ma-ano').value);
 
-  if (!nome)   { erroEl.textContent='Nome obrigatório';      erroEl.style.display='block'; return; }
-  if (!apelido){ erroEl.textContent='Apelido obrigatório';   erroEl.style.display='block'; return; }
-  if (!nasc)   { erroEl.textContent='Data de nascimento obrigatória'; erroEl.style.display='block'; return; }
-  if (!escola) { erroEl.textContent='ID da escola obrigatório'; erroEl.style.display='block'; return; }
+  if (!nome)    { erroEl.textContent = 'Nome obrigatório';             erroEl.style.display = 'block'; return; }
+  if (!apelido) { erroEl.textContent = 'Apelido obrigatório';          erroEl.style.display = 'block'; return; }
+  if (!nasc)    { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
+  if (!escola)  { erroEl.textContent = 'ID da escola obrigatório';      erroEl.style.display = 'block'; return; }
 
-  // Validar BI moçambicano (opcional mas se preenchido)
   if (bi && !/^[0-9]{9}[A-Z]{1,2}$/.test(bi)) {
-    erroEl.textContent = 'Formato de BI inválido. Use: 9 dígitos + letras (ex: 123456789MZ)';
-    erroEl.style.display='block'; return;
+    erroEl.textContent = 'BI inválido. Formato: 9 dígitos + letras (ex: 123456789MZ)';
+    erroEl.style.display = 'block'; return;
   }
 
   var btn = document.getElementById('ma-btn');
   btn.textContent = 'A guardar...'; btn.disabled = true;
 
   var body = {
-    nome: nome, apelido: apelido,
+    nome: nome,
+    apelido: apelido,
     dataNascimento: nasc,
     genero: gen,
     escolaId: parseInt(escola),
     numeroBI: bi || null,
   };
 
-  var r = await api('/alunos', { method:'POST', body: JSON.stringify(body) });
+  var r = await api('/alunos', { method: 'POST', body: JSON.stringify(body) });
   if (r && r.id) {
-    // Se tem turma, matricular também
-    var turmaId = document.getElementById('ma-turma').value;
-    var anoLetivo = parseInt(document.getElementById('ma-ano').value);
     if (turmaId) {
-      await api('/matriculas', { method:'POST', body: JSON.stringify({ alunoId: r.id, turmaId: parseInt(turmaId), anoLetivo: anoLetivo }) });
+      await api('/matriculas', { method: 'POST', body: JSON.stringify({ alunoId: r.id, turmaId: parseInt(turmaId), anoLetivo: anoLetivo }) });
     }
     document.querySelector('.modal-overlay').remove();
-    mostrarSucesso('Aluno "' + r.nome + ' ' + r.apelido + '" registado com sucesso!');
+    mostrarSucesso('Aluno "' + r.nome + ' ' + r.apelido + '" registado! ID: ' + r.id);
     alunos();
   } else {
-    erroEl.textContent = r && r.error ? r.error : 'Erro ao guardar.';
+    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
     erroEl.style.display = 'block';
     btn.textContent = 'Guardar Aluno'; btn.disabled = false;
   }
 }
 
 // ============================================================
-// FORMULÁRIO — REGISTAR PROFESSOR
+// Modal Professor Completo
 // ============================================================
 function showModalProfessorCompleto() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
-  o.innerHTML = `
-    <div class="modal" style="max-width:700px">
-      <div class="modal-title">Registar Novo Professor</div>
-      <div class="modal-grid">
-        <div class="form-group">
-          <label>Nome *</label>
-          <input type="text" id="mp-nome" placeholder="Ex: António"/>
-        </div>
-        <div class="form-group">
-          <label>Apelido *</label>
-          <input type="text" id="mp-apelido" placeholder="Ex: Mabunda"/>
-        </div>
-        <div class="form-group">
-          <label>Nº de Funcionário (SIGEDAP) *</label>
-          <input type="text" id="mp-func" placeholder="Ex: FUNC-1234" maxlength="20"/>
-        </div>
-        <div class="form-group">
-          <label>Nº BI *</label>
-          <input type="text" id="mp-bi" placeholder="Ex: 123456789MZ" maxlength="20"/>
-          <small style="color:var(--text-muted);font-size:10px">Obrigatório para professores</small>
-        </div>
-        <div class="form-group">
-          <label>NUIT (opcional)</label>
-          <input type="text" id="mp-nuit" placeholder="Ex: 400123456" maxlength="9"/>
-          <small style="color:var(--text-muted);font-size:10px">9 dígitos</small>
-        </div>
-        <div class="form-group">
-          <label>Data de Nascimento *</label>
-          <input type="date" id="mp-nasc"/>
-        </div>
-        <div class="form-group">
-          <label>Género *</label>
-          <select id="mp-gen">
-            <option value="M">Masculino</option>
-            <option value="F">Feminino</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Habilitações *</label>
-          <select id="mp-hab">
-            <option value="MEDIO">Médio</option>
-            <option value="BACHAREL">Bacharelato</option>
-            <option value="LICENCIATURA">Licenciatura</option>
-            <option value="MESTRADO">Mestrado</option>
-            <option value="DOUTORAMENTO">Doutoramento</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Certificado / Diploma</label>
-          <input type="text" id="mp-cert" placeholder="Ex: CFPP Nampula, 2015"/>
-          <small style="color:var(--text-muted);font-size:10px">Instituição e ano de conclusão</small>
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="mp-email" placeholder="professor@mec.gov.mz"/>
-        </div>
-        <div class="form-group">
-          <label>Telefone (+258)</label>
-          <input type="tel" id="mp-tel" placeholder="Ex: +258 84 000 0000"/>
-        </div>
-        <div class="form-group">
-          <label>ID da Escola Actual</label>
-          <input type="number" id="mp-escola" placeholder="Nº da escola" min="1"/>
-        </div>
-      </div>
-      <div id="mp-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-primary" id="mp-btn" onclick="submeterProfessor()">Guardar Professor</button>
-      </div>
-    </div>`;
-  o.addEventListener('click', function(ev){ if(ev.target===o) o.remove(); });
+
+  var html = '';
+  html += '<div class="modal" style="max-width:700px">';
+  html += '<div class="modal-title">Registar Novo Professor</div>';
+  html += '<div class="modal-grid">';
+  html += '<div class="form-group"><label>Nome *</label><input type="text" id="mp-nome" placeholder="Ex: António"/></div>';
+  html += '<div class="form-group"><label>Apelido *</label><input type="text" id="mp-apelido" placeholder="Ex: Mabunda"/></div>';
+  html += '<div class="form-group"><label>Nº Funcionário (SIGEDAP) *</label>';
+  html += '<input type="text" id="mp-func" placeholder="Ex: FUNC-1234" maxlength="20"/></div>';
+  html += '<div class="form-group"><label>Nº BI *</label>';
+  html += '<input type="text" id="mp-bi" placeholder="Ex: 123456789MZ" maxlength="20"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">9 dígitos + letras (obrigatório)</small></div>';
+  html += '<div class="form-group"><label>NUIT (opcional)</label>';
+  html += '<input type="text" id="mp-nuit" placeholder="Ex: 400123456" maxlength="9"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">9 dígitos numéricos</small></div>';
+  html += '<div class="form-group"><label>Data de Nascimento *</label><input type="date" id="mp-nasc"/></div>';
+  html += '<div class="form-group"><label>Género *</label><select id="mp-gen">';
+  html += '<option value="M">Masculino</option><option value="F">Feminino</option>';
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Habilitações *</label><select id="mp-hab">';
+  html += '<option value="MEDIO">Médio</option>';
+  html += '<option value="BACHAREL">Bacharelato</option>';
+  html += '<option value="LICENCIATURA">Licenciatura</option>';
+  html += '<option value="MESTRADO">Mestrado</option>';
+  html += '<option value="DOUTORAMENTO">Doutoramento</option>';
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Certificado / Diploma</label>';
+  html += '<input type="text" id="mp-cert" placeholder="Ex: CFPP Nampula, 2015"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">Instituição e ano de conclusão</small></div>';
+  html += '<div class="form-group"><label>Email</label>';
+  html += '<input type="email" id="mp-email" placeholder="professor@mec.gov.mz"/></div>';
+  html += '<div class="form-group"><label>Telefone (+258)</label>';
+  html += '<input type="tel" id="mp-tel" placeholder="+258 84 000 0000"/></div>';
+  html += '<div class="form-group"><label>ID da Escola</label>';
+  html += '<input type="number" id="mp-escola" placeholder="Nº da escola" min="1"/></div>';
+  html += '</div>';
+  html += '<div id="mp-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>';
+  html += '<div class="modal-footer">';
+  html += '<button class="btn btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancelar</button>';
+  html += '<button class="btn btn-primary" id="mp-btn" onclick="submeterProfessor()">Guardar Professor</button>';
+  html += '</div></div>';
+
+  o.innerHTML = html;
+  o.addEventListener('click', function(ev) { if (ev.target === o) o.remove(); });
   document.body.appendChild(o);
 }
 
@@ -786,113 +712,99 @@ async function submeterProfessor() {
   var nasc   = document.getElementById('mp-nasc').value;
   var gen    = document.getElementById('mp-gen').value;
   var hab    = document.getElementById('mp-hab').value;
-  var cert   = document.getElementById('mp-cert').value.trim();
   var email  = document.getElementById('mp-email').value.trim();
   var tel    = document.getElementById('mp-tel').value.trim();
   var escola = document.getElementById('mp-escola').value;
 
-  if (!nome)  { erroEl.textContent='Nome obrigatório';              erroEl.style.display='block'; return; }
-  if (!apel)  { erroEl.textContent='Apelido obrigatório';           erroEl.style.display='block'; return; }
-  if (!func)  { erroEl.textContent='Nº de Funcionário obrigatório'; erroEl.style.display='block'; return; }
-  if (!bi)    { erroEl.textContent='Nº de BI obrigatório';          erroEl.style.display='block'; return; }
-  if (!nasc)  { erroEl.textContent='Data de nascimento obrigatória';erroEl.style.display='block'; return; }
+  if (!nome)  { erroEl.textContent = 'Nome obrigatório';               erroEl.style.display = 'block'; return; }
+  if (!apel)  { erroEl.textContent = 'Apelido obrigatório';            erroEl.style.display = 'block'; return; }
+  if (!func)  { erroEl.textContent = 'Nº de Funcionário obrigatório';  erroEl.style.display = 'block'; return; }
+  if (!bi)    { erroEl.textContent = 'Nº de BI obrigatório';           erroEl.style.display = 'block'; return; }
+  if (!nasc)  { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
 
-  // Validar BI
   if (!/^[0-9]{9}[A-Z]{1,2}$/.test(bi)) {
-    erroEl.textContent='BI inválido. Formato: 9 dígitos + letras (ex: 123456789MZ)';
-    erroEl.style.display='block'; return;
+    erroEl.textContent = 'BI inválido. Formato: 9 dígitos + letras (ex: 123456789MZ)';
+    erroEl.style.display = 'block'; return;
   }
-  // Validar NUIT
   if (nuit && !/^[0-9]{9}$/.test(nuit)) {
-    erroEl.textContent='NUIT inválido. Deve ter 9 dígitos.';
-    erroEl.style.display='block'; return;
+    erroEl.textContent = 'NUIT inválido. Deve ter exactamente 9 dígitos.';
+    erroEl.style.display = 'block'; return;
   }
 
   var btn = document.getElementById('mp-btn');
   btn.textContent = 'A guardar...'; btn.disabled = true;
 
   var body = {
-    nome: nome, apelido: apel,
+    nome: nome,
+    apelido: apel,
     numeroFuncionario: func,
     genero: gen,
     dataNascimento: nasc,
     habilitacao: hab,
-    email:   email || null,
-    telefone: tel  || null,
+    email:    email  || null,
+    telefone: tel    || null,
     escolaId: escola ? parseInt(escola) : null,
-    // campos extra guardados na nota (o schema permite JSON)
-    // bi e nuit guardados como campos de texto nas observações
   };
 
-  var r = await api('/professores', { method:'POST', body: JSON.stringify(body) });
+  var r = await api('/professores', { method: 'POST', body: JSON.stringify(body) });
   if (r && r.id) {
     document.querySelector('.modal-overlay').remove();
-    mostrarSucesso('Professor "' + r.nome + ' ' + r.apelido + '" registado com sucesso!');
+    mostrarSucesso('Professor "' + r.nome + ' ' + r.apelido + '" registado! ID: ' + r.id);
     professores();
   } else {
-    erroEl.textContent = r && r.error ? r.error : 'Erro ao guardar.';
+    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
     erroEl.style.display = 'block';
     btn.textContent = 'Guardar Professor'; btn.disabled = false;
   }
 }
 
 // ============================================================
-// LANÇAR NOTAS — FORMULÁRIO REAL
+// Modal Lançar Nota
 // ============================================================
 function showModalNota() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
-  o.innerHTML = `
-    <div class="modal">
-      <div class="modal-title">Lançar Nota</div>
-      <div class="modal-grid">
-        <div class="form-group">
-          <label>ID do Aluno *</label>
-          <input type="number" id="mn-aluno" placeholder="Nº do aluno" min="1"/>
-        </div>
-        <div class="form-group">
-          <label>Disciplina *</label>
-          <select id="mn-disc">
-            <option value="1">Português</option>
-            <option value="2">Matemática</option>
-            <option value="3">Inglês</option>
-            <option value="4">História</option>
-            <option value="5">Geografia</option>
-            <option value="6">Biologia</option>
-            <option value="7">Física</option>
-            <option value="8">Química</option>
-            <option value="9">Educação Física</option>
-            <option value="10">TIC</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Trimestre *</label>
-          <select id="mn-trim">
-            <option value="1">1º Trimestre</option>
-            <option value="2">2º Trimestre</option>
-            <option value="3">3º Trimestre</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Ano Lectivo *</label>
-          <input type="number" id="mn-ano" value="${new Date().getFullYear()}" min="2000" max="2099"/>
-        </div>
-        <div class="form-group">
-          <label>Nota (0 – 20) *</label>
-          <input type="number" id="mn-nota" placeholder="Ex: 14.5" min="0" max="20" step="0.1"/>
-        </div>
-        <div class="form-group">
-          <label>ID do Professor</label>
-          <input type="number" id="mn-prof" placeholder="Nº do professor" min="1" value="1"/>
-        </div>
-      </div>
-      <div id="mn-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-primary" id="mn-btn" onclick="submeterNota()">Lançar Nota</button>
-      </div>
-    </div>`;
-  o.addEventListener('click', function(ev){ if(ev.target===o) o.remove(); });
+  var anoAtual = new Date().getFullYear();
+
+  var html = '';
+  html += '<div class="modal">';
+  html += '<div class="modal-title">Lançar Nota</div>';
+  html += '<div class="modal-grid">';
+  html += '<div class="form-group"><label>ID do Aluno *</label>';
+  html += '<input type="number" id="mn-aluno" placeholder="Nº do aluno" min="1"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">Ver ID na lista de Alunos</small></div>';
+  html += '<div class="form-group"><label>Disciplina *</label><select id="mn-disc">';
+  html += '<option value="1">Português</option>';
+  html += '<option value="2">Matemática</option>';
+  html += '<option value="3">Inglês</option>';
+  html += '<option value="4">História</option>';
+  html += '<option value="5">Geografia</option>';
+  html += '<option value="6">Biologia</option>';
+  html += '<option value="7">Física</option>';
+  html += '<option value="8">Química</option>';
+  html += '<option value="9">Educação Física</option>';
+  html += '<option value="10">TIC</option>';
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Trimestre *</label><select id="mn-trim">';
+  html += '<option value="1">1º Trimestre</option>';
+  html += '<option value="2">2º Trimestre</option>';
+  html += '<option value="3">3º Trimestre</option>';
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Ano Lectivo *</label>';
+  html += '<input type="number" id="mn-ano" value="' + anoAtual + '" min="2000" max="2099"/></div>';
+  html += '<div class="form-group"><label>Nota (0 – 20) *</label>';
+  html += '<input type="number" id="mn-nota" placeholder="Ex: 14.5" min="0" max="20" step="0.1"/></div>';
+  html += '<div class="form-group"><label>ID do Professor *</label>';
+  html += '<input type="number" id="mn-prof" placeholder="Nº do professor" min="1" value="1"/></div>';
+  html += '</div>';
+  html += '<div id="mn-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>';
+  html += '<div class="modal-footer">';
+  html += '<button class="btn btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancelar</button>';
+  html += '<button class="btn btn-primary" id="mn-btn" onclick="submeterNota()">Lançar Nota</button>';
+  html += '</div></div>';
+
+  o.innerHTML = html;
+  o.addEventListener('click', function(ev) { if (ev.target === o) o.remove(); });
   document.body.appendChild(o);
 }
 
@@ -900,33 +812,32 @@ async function submeterNota() {
   var erroEl = document.getElementById('mn-erro');
   erroEl.style.display = 'none';
 
-  var alunoId     = parseInt(document.getElementById('mn-aluno').value);
-  var disciplinaId= parseInt(document.getElementById('mn-disc').value);
-  var trimestre   = parseInt(document.getElementById('mn-trim').value);
-  var anoLetivo   = parseInt(document.getElementById('mn-ano').value);
-  var valor       = parseFloat(document.getElementById('mn-nota').value);
-  var professorId = parseInt(document.getElementById('mn-prof').value) || 1;
+  var alunoId      = parseInt(document.getElementById('mn-aluno').value);
+  var disciplinaId = parseInt(document.getElementById('mn-disc').value);
+  var trimestre    = parseInt(document.getElementById('mn-trim').value);
+  var anoLetivo    = parseInt(document.getElementById('mn-ano').value);
+  var valor        = parseFloat(document.getElementById('mn-nota').value);
+  var professorId  = parseInt(document.getElementById('mn-prof').value) || 1;
 
-  if (!alunoId || isNaN(alunoId)) { erroEl.textContent='ID do aluno inválido'; erroEl.style.display='block'; return; }
-  if (isNaN(valor) || valor < 0 || valor > 20) { erroEl.textContent='Nota deve ser entre 0 e 20'; erroEl.style.display='block'; return; }
+  if (!alunoId || isNaN(alunoId)) { erroEl.textContent = 'ID do aluno inválido'; erroEl.style.display = 'block'; return; }
+  if (isNaN(valor) || valor < 0 || valor > 20) { erroEl.textContent = 'Nota deve ser entre 0 e 20'; erroEl.style.display = 'block'; return; }
 
   var btn = document.getElementById('mn-btn');
   btn.textContent = 'A lançar...'; btn.disabled = true;
 
-  var r = await api('/notas', { method:'POST', body: JSON.stringify({ alunoId, disciplinaId, trimestre, anoLetivo, valor, professorId }) });
+  var body = { alunoId: alunoId, disciplinaId: disciplinaId, trimestre: trimestre, anoLetivo: anoLetivo, valor: valor, professorId: professorId };
+  var r = await api('/notas', { method: 'POST', body: JSON.stringify(body) });
+
   if (r && r.id) {
     document.querySelector('.modal-overlay').remove();
-    mostrarSucesso('Nota lançada: ' + r.valor + ' (' + (r.aluno ? r.aluno.nome : '') + ' — ' + (r.disciplina ? r.disciplina.nome : '') + ')');
+    mostrarSucesso('Nota lançada: ' + r.valor + ' — ' + (r.disciplina ? r.disciplina.nome : '') + ' — ' + (r.aluno ? r.aluno.nome : ''));
     notas();
   } else {
-    erroEl.textContent = r && r.error ? r.error : 'Erro ao lançar nota.';
+    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao lançar nota.';
     erroEl.style.display = 'block';
     btn.textContent = 'Lançar Nota'; btn.disabled = false;
   }
 }
-
-// ============================================================
-// EXPORTAÇÃO REAL — download de ficheiros
 // ============================================================
 function exportarExcel(tipo) {
   var url = API_URL + '/exportar/excel/' + tipo;
