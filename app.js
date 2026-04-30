@@ -253,7 +253,7 @@ async function alunos() {
     '<div class="section-title">Gestão de Alunos</div><p class="section-desc">Total de '+fmt(data.meta?data.meta.total:0)+' alunos.</p>' +
     '<div class="search-bar"><input class="search-input" id="al-q" placeholder="Pesquisar aluno..." oninput="pesqAlunos(this.value)"/>' +
     '<select id="al-st" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);padding:10px 12px;font-size:13px;" onchange="pesqAlunos(document.getElementById(\'al-q\').value)"><option value="">Todos</option><option value="ATIVO">Activo</option><option value="EVADIDO">Evadido</option><option value="TRANSFERIDO">Transferido</option></select>' +
-    '<button class="btn btn-primary" onclick="alert(\'Formulário de nova matrícula\')">+ Nova Matrícula</button></div>' +
+    '<button class="btn btn-primary" onclick="showModalAlunoCompleto()">+ Nova Matrícula</button></div>' +
     '<div class="table-card"><div class="table-header"><span class="table-title">Registo de Alunos</span><span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">'+fmt(data.meta?data.meta.total:0)+' total</span></div>' +
     '<table class="data-table"><thead><tr><th>Nome</th><th>Escola</th><th>Turma</th><th>Género</th><th>Estado</th><th>Acções</th></tr></thead><tbody id="al-body">'+rowsAlunos(data.data||[])+'</tbody></table></div>';
 }
@@ -289,7 +289,7 @@ async function professores() {
   if (!data) { document.getElementById('page-content').innerHTML = erro(); return; }
   document.getElementById('page-content').innerHTML =
     '<div class="section-title">Gestão de Professores</div><p class="section-desc">Total de '+fmt(data.meta?data.meta.total:0)+' professores.</p>' +
-    '<div class="search-bar"><input class="search-input" id="pr-q" placeholder="Pesquisar professor..." oninput="pesqProfs(this.value)"/><button class="btn btn-primary" onclick="alert(\'Formulário de novo professor\')">+ Novo Professor</button></div>' +
+    '<div class="search-bar"><input class="search-input" id="pr-q" placeholder="Pesquisar professor..." oninput="pesqProfs(this.value)"/><button class="btn btn-primary" onclick="showModalProfessorCompleto()">+ Novo Professor</button></div>' +
     '<div class="table-card"><div class="table-header"><span class="table-title">Lista de Professores</span></div>' +
     '<table class="data-table"><thead><tr><th>Nome</th><th>Escola</th><th>Habilitação</th><th>Estado</th></tr></thead><tbody id="pr-body">'+rowsProfs(data.data||[])+'</tbody></table></div>';
 }
@@ -315,7 +315,7 @@ async function notas() {
   if (!data) { document.getElementById('page-content').innerHTML = erro(); return; }
   document.getElementById('page-content').innerHTML =
     '<div class="section-title">Notas e Avaliações</div><p class="section-desc">Lançamento e consulta de notas.</p>' +
-    '<div class="table-card"><div class="table-header"><span class="table-title">Notas Lançadas</span><button class="btn btn-gold btn-sm" onclick="alert(\'Lançamento em lote\')">Lançar em Lote</button></div>' +
+    '<div class="table-card"><div class="table-header"><span class="table-title">Notas Lançadas</span><button class="btn btn-gold btn-sm" onclick="showModalNota()">Lançar em Lote</button></div>' +
     '<table class="data-table"><thead><tr><th>Aluno</th><th>Disciplina</th><th>Trimestre</th><th>Nota</th><th>Resultado</th></tr></thead><tbody>' +
     (data.length?data.map(function(n){
       return '<tr><td><strong style="color:var(--text-primary)">'+(n.aluno?n.aluno.nome+' '+n.aluno.apelido:'—')+'</strong></td><td>'+(n.disciplina?n.disciplina.nome:'—')+'</td><td style="font-family:var(--font-mono)">'+n.trimestre+'º Trim.</td><td style="font-family:var(--font-mono);'+(n.valor<10?'color:var(--accent-red)':'')+'">'+n.valor+'</td><td><span class="badge '+(n.valor>=10?'badge-green':'badge-red')+'">'+(n.valor>=10?'Aprovado':'Reprovado')+'</span></td></tr>';
