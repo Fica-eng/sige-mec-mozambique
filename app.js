@@ -443,9 +443,21 @@ setInterval(setDate, 60000);
 // ============================================================
 
 // Modal Escola Completo
-function showModalEscolaCompleto() {
+// Modal Escola — províncias carregadas da API
+async function showModalEscolaCompleto() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
+
+  // Primeiro carregar províncias da API
+  var provincias = await api('/provincias');
+
+  var optsProvs = '<option value="">-- Seleccione --</option>';
+  if (provincias && provincias.length) {
+    provincias.sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+    provincias.forEach(function(p) {
+      optsProvs += '<option value="' + p.id + '">' + p.nome + '</option>';
+    });
+  }
 
   var html = '';
   html += '<div class="modal" style="max-width:680px">';
@@ -458,21 +470,10 @@ function showModalEscolaCompleto() {
   html += '<option value="SECUNDARIA">Secundária</option>';
   html += '</select></div>';
   html += '<div class="form-group" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="me-nome" placeholder="Ex: EPC 25 de Setembro"/></div>';
-  html += '<div class="form-group"><label>Província *</label><select id="me-prov" onchange="carregarDistritos(this.value)">';
-  html += '<option value="">-- Seleccione --</option>';
-  html += '<option value="1">Maputo Cidade</option>';
-  html += '<option value="2">Maputo Província</option>';
-  html += '<option value="3">Gaza</option>';
-  html += '<option value="4">Inhambane</option>';
-  html += '<option value="5">Sofala</option>';
-  html += '<option value="6">Manica</option>';
-  html += '<option value="7">Tete</option>';
-  html += '<option value="8">Zambézia</option>';
-  html += '<option value="9">Nampula</option>';
-  html += '<option value="10">Niassa</option>';
-  html += '<option value="11">Cabo Delgado</option>';
-  html += '</select></div>';
-  html += '<div class="form-group"><label>Distrito *</label><select id="me-dist"><option value="">-- Seleccione Província --</option></select></div>';
+  html += '<div class="form-group"><label>Província *</label>';
+  html += '<select id="me-prov" onchange="carregarDistritos(this.value)">' + optsProvs + '</select></div>';
+  html += '<div class="form-group"><label>Distrito *</label>';
+  html += '<select id="me-dist"><option value="">-- Seleccione Província primeiro --</option></select></div>';
   html += '<div class="form-group"><label>Localidade</label><input type="text" id="me-local" placeholder="Ex: Bairro Central"/></div>';
   html += '<div class="form-group"><label>Endereço</label><input type="text" id="me-end" placeholder="Ex: Av. Eduardo Mondlane, 123"/></div>';
   html += '<div class="form-group"><label>Telefone</label><input type="tel" id="me-tel" placeholder="+258 21 000 000" maxlength="20"/></div>';
@@ -493,11 +494,14 @@ function showModalEscolaCompleto() {
 
 async function carregarDistritos(provId) {
   var sel = document.getElementById('me-dist');
-  if (!provId) { sel.innerHTML = '<option value="">-- Seleccione Província --</option>'; return; }
-  sel.innerHTML = '<option value="">A carregar...</option>';
+  if (!provId) {
+    sel.innerHTML = '<option value="">-- Seleccione Província primeiro --</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">A carregar distritos...</option>';
   var data = await api('/distritos?provinciaId=' + provId);
   if (!data || !data.length) {
-    sel.innerHTML = '<option value="">Sem distritos</option>';
+    sel.innerHTML = '<option value="">Sem distritos registados</option>';
     return;
   }
   var opts = '<option value="">-- Seleccione Distrito --</option>';
