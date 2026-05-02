@@ -790,16 +790,12 @@ async function submeterAluno() {
 // ============================================================
 // Modal Professor Completo
 // ============================================================
+// ============================================================
+// Modal Professor Completo — com turmas dinâmicas
+// ============================================================
 function showModalProfessorCompleto() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
-
-  var letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  var turmaOpts = '<option value="">-- Sem turma --</option>';
-  letras.forEach(function(l) { turmaOpts += '<option value="' + l + '">' + l + '</option>'; });
-  for (var n = 1; n <= 9; n++) {
-    letras.forEach(function(l) { turmaOpts += '<option value="' + l + n + '">' + l + n + '</option>'; });
-  }
 
   var html = '';
   html += '<div class="modal" style="max-width:720px">';
@@ -835,8 +831,7 @@ function showModalProfessorCompleto() {
   html += '<option value="DOUTORAMENTO">Doutoramento</option>';
   html += '</select></div>';
   html += '<div class="form-group"><label>Certificado / Diploma</label>';
-  html += '<input type="text" id="mp-cert" placeholder="Ex: CFPP Nampula, 2015"/>';
-  html += '<small style="color:var(--text-muted);font-size:10px">Instituição e ano de conclusão</small></div>';
+  html += '<input type="text" id="mp-cert" placeholder="Ex: CFPP Nampula, 2015"/></div>';
 
   // Email e Telefone
   html += '<div class="form-group"><label>Email</label>';
@@ -851,39 +846,39 @@ function showModalProfessorCompleto() {
   html += 'MC=Maputo Cidade · MP=Maputo Prov. · GZ=Gaza · IH=Inhambane · SF=Sofala · MN=Manica · TT=Tete · ZB=Zambézia · NP=Nampula · NS=Niassa · CD=Cabo Delgado';
   html += '</small></div>';
 
-  // Classe(s)
-  html += '<div class="form-group" style="grid-column:1/-1"><label>Classe(s) que Lecciona</label>';
+  // Disciplinas (seleccionar primeiro)
+  var discs = ['Português','Matemática','Inglês','História','Geografia','Biologia','Física','Química','Educação Física','TIC'];
+  html += '<div class="form-group" style="grid-column:1/-1">';
+  html += '<label>Disciplina(s) que Lecciona <small style="color:var(--text-muted)">(seleccione para gerar turmas)</small></label>';
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px">';
+  discs.forEach(function(d, i) {
+    html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
+    html += '<input type="checkbox" class="mp-disc-cb" id="mp-disc-' + i + '" value="' + (i+1) + '"';
+    html += ' onchange="gerarTurmasProfessor()" style="accent-color:var(--accent)"/> ' + d + '</label>';
+  });
+  html += '</div></div>';
+
+  // Classes (seleccionar para combinar com turmas)
+  html += '<div class="form-group" style="grid-column:1/-1">';
+  html += '<label>Classe(s) que Lecciona <small style="color:var(--text-muted)">(seleccione para gerar turmas)</small></label>';
   html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px">';
   for (var c = 1; c <= 12; c++) {
     html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
-    html += '<input type="checkbox" id="mp-classe-' + c + '" value="' + c + '" style="accent-color:var(--accent)"/> ' + c + 'ª Classe</label>';
+    html += '<input type="checkbox" class="mp-classe-cb" id="mp-classe-' + c + '" value="' + c + '"';
+    html += ' onchange="gerarTurmasProfessor()" style="accent-color:var(--accent)"/> ' + c + 'ª Classe</label>';
   }
   html += '</div></div>';
 
-  // Disciplina(s)
-  var discs = ['Português','Matemática','Inglês','História','Geografia','Biologia','Física','Química','Educação Física','TIC'];
-  html += '<div class="form-group" style="grid-column:1/-1"><label>Disciplina(s) que Lecciona</label>';
-  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px">';
-  discs.forEach(function(d, i) {
-    html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
-    html += '<input type="checkbox" id="mp-disc-' + i + '" value="' + (i+1) + '" style="accent-color:var(--accent)"/> ' + d + '</label>';
-  });
-  html += '</div></div>';
-
-  // Turma(s)
-  html += '<div class="form-group" style="grid-column:1/-1"><label>Turma(s)</label>';
-  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
-  var letrasT = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  letrasT.forEach(function(l) {
-    html += '<label style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-secondary);cursor:pointer">';
-    html += '<input type="checkbox" class="mp-turma-cb" value="' + l + '" style="accent-color:var(--accent)"/> ' + l + '</label>';
-  });
-  for (var n2 = 1; n2 <= 3; n2++) {
-    letrasT.forEach(function(l) {
-      html += '<label style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-secondary);cursor:pointer">';
-      html += '<input type="checkbox" class="mp-turma-cb" value="' + l + n2 + '" style="accent-color:var(--accent)"/> ' + l + n2 + '</label>';
-    });
-  }
+  // Letra(s) de turma + geração automática de combinações
+  html += '<div class="form-group" style="grid-column:1/-1">';
+  html += '<label>Letra(s) da Turma</label>';
+  html += '<small style="color:var(--text-muted);font-size:10px;display:block;margin-bottom:6px">Escreva as letras/sufixos das turmas separados por vírgula (ex: A, B1, D, H2). As combinações são geradas automaticamente.</small>';
+  html += '<input type="text" id="mp-letras-turma" placeholder="Ex: A, B1, D, H2" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text-primary);font-size:13px;" oninput="gerarTurmasProfessor()"/>';
+  html += '</div>';
+  html += '<div class="form-group" style="grid-column:1/-1">';
+  html += '<label>Combinações Geradas <small style="color:var(--text-muted)">(seleccione as que se aplicam)</small></label>';
+  html += '<div id="mp-turmas-container" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:40px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px">';
+  html += '<span style="color:var(--text-muted);font-size:12px;font-style:italic">Seleccione disciplinas, classes e escreva as letras das turmas.</span>';
   html += '</div></div>';
 
   html += '</div>';
@@ -896,6 +891,86 @@ function showModalProfessorCompleto() {
   o.innerHTML = html;
   o.addEventListener('click', function(ev) { if (ev.target === o) o.remove(); });
   document.body.appendChild(o);
+}
+
+// Prefixos das disciplinas
+var DISC_PREFIXOS = {
+  1: 'P',   // Português
+  2: 'M',   // Matemática
+  3: 'I',   // Inglês
+  4: 'H',   // História
+  5: 'G',   // Geografia
+  6: 'B',   // Biologia
+  7: 'F',   // Física
+  8: 'Q',   // Química
+  9: 'EF',  // Educação Física
+  10: 'TI'  // TIC
+};
+
+var DISC_NOMES = ['Português','Matemática','Inglês','História','Geografia','Biologia','Física','Química','Educação Física','TIC'];
+
+// Gerar combinações Disciplina+Classe+TurmaLetra automaticamente
+// Ex: M7A, F9A, M10D, M11H, F12G
+function gerarTurmasProfessor() {
+  var container = document.getElementById('mp-turmas-container');
+  if (!container) return;
+
+  // Recolher disciplinas seleccionadas
+  var disciplinas = [];
+  document.querySelectorAll('.mp-disc-cb:checked').forEach(function(cb) {
+    var id = parseInt(cb.value);
+    disciplinas.push({ id: id, prefixo: DISC_PREFIXOS[id] || 'X', nome: DISC_NOMES[id-1] });
+  });
+
+  // Recolher classes seleccionadas
+  var classes = [];
+  document.querySelectorAll('.mp-classe-cb:checked').forEach(function(cb) {
+    classes.push(parseInt(cb.value));
+  });
+
+  // Recolher letras escritas pelo utilizador
+  var letrasInput = document.getElementById('mp-letras-turma');
+  var letrasRaw = letrasInput ? letrasInput.value : '';
+  var letras = letrasRaw.split(',')
+    .map(function(l) { return l.trim().toUpperCase(); })
+    .filter(function(l) { return l.length > 0; });
+
+  if (!disciplinas.length || !classes.length) {
+    container.innerHTML = '<span style="color:var(--text-muted);font-size:12px;font-style:italic">Seleccione pelo menos uma Disciplina e uma Classe.</span>';
+    return;
+  }
+  if (!letras.length) {
+    container.innerHTML = '<span style="color:var(--text-muted);font-size:12px;font-style:italic">Escreva as letras das turmas no campo acima (ex: A, B1, D).</span>';
+    return;
+  }
+
+  classes.sort(function(a, b) { return a - b; });
+
+  var html = '';
+  disciplinas.forEach(function(disc) {
+    // Cabeçalho da disciplina
+    html += '<div style="width:100%;font-size:10px;font-weight:700;color:var(--accent);';
+    html += 'text-transform:uppercase;letter-spacing:1px;margin-top:10px;margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--border)">';
+    html += disc.prefixo + ' — ' + disc.nome + '</div>';
+
+    classes.forEach(function(classe) {
+      letras.forEach(function(letra) {
+        // Combinação final: ex M7A, M7A1, F9D, H12B2
+        var nomeComb = disc.prefixo + classe + letra;
+        var id = 'mp-t-' + nomeComb.replace(/[^a-zA-Z0-9]/g, '');
+        html += '<label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;';
+        html += 'color:var(--text-secondary);cursor:pointer;padding:4px 10px;';
+        html += 'background:var(--bg-card2);border-radius:6px;border:1px solid var(--border);margin:3px;';
+        html += 'transition:border-color 0.2s">';
+        html += '<input type="checkbox" id="' + id + '" class="mp-turma-gerada" value="' + nomeComb + '"';
+        html += ' data-classe="' + classe + '" data-disc="' + disc.id + '"';
+        html += ' style="accent-color:var(--accent)"/> ';
+        html += '<span style="font-family:var(--font-mono);font-weight:600">' + nomeComb + '</span></label>';
+      });
+    });
+  });
+
+  container.innerHTML = html || '<span style="color:var(--text-muted);font-size:12px">Nenhuma combinação gerada.</span>';
 }
 
 async function submeterProfessor() {
@@ -913,52 +988,41 @@ async function submeterProfessor() {
   var tel       = document.getElementById('mp-tel').value.trim();
   var escolaCod = document.getElementById('mp-escola-cod').value.trim().toUpperCase();
 
-  // Recolher classes seleccionadas
-  var classes = [];
-  for (var c = 1; c <= 12; c++) {
-    var cb = document.getElementById('mp-classe-' + c);
-    if (cb && cb.checked) classes.push(c);
-  }
-
-  // Recolher disciplinas seleccionadas
+  // Recolher disciplinas
   var disciplinas = [];
-  for (var d = 0; d <= 9; d++) {
-    var db = document.getElementById('mp-disc-' + d);
-    if (db && db.checked) disciplinas.push(parseInt(db.value));
-  }
+  document.querySelectorAll('.mp-disc-cb:checked').forEach(function(cb) {
+    disciplinas.push(parseInt(cb.value));
+  });
 
-  // Recolher turmas seleccionadas
-  var turmas = [];
-  document.querySelectorAll('.mp-turma-cb:checked').forEach(function(t) { turmas.push(t.value); });
+  // Recolher turmas geradas seleccionadas
+  var turmasSel = [];
+  document.querySelectorAll('.mp-turma-gerada:checked').forEach(function(cb) {
+    turmasSel.push({ nome: cb.value, classe: parseInt(cb.getAttribute('data-classe')) });
+  });
 
   // Validações
-  if (!nome)      { erroEl.textContent = 'Nome obrigatório';              erroEl.style.display = 'block'; return; }
-  if (!apel)      { erroEl.textContent = 'Apelido obrigatório';           erroEl.style.display = 'block'; return; }
-  if (!bi)        { erroEl.textContent = 'Nº de BI obrigatório';          erroEl.style.display = 'block'; return; }
-  if (!nuit)      { erroEl.textContent = 'NUIT obrigatório';              erroEl.style.display = 'block'; return; }
+  if (!nome)      { erroEl.textContent = 'Nome obrigatório';               erroEl.style.display = 'block'; return; }
+  if (!apel)      { erroEl.textContent = 'Apelido obrigatório';            erroEl.style.display = 'block'; return; }
+  if (!bi)        { erroEl.textContent = 'Nº de BI obrigatório';           erroEl.style.display = 'block'; return; }
+  if (!nuit)      { erroEl.textContent = 'NUIT obrigatório';               erroEl.style.display = 'block'; return; }
   if (!nasc)      { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
   if (!escolaCod) { erroEl.textContent = 'Código da escola obrigatório';   erroEl.style.display = 'block'; return; }
 
-  // Validar BI: 12 dígitos + 1 letra
   if (!/^[0-9]{12}[A-Z]$/.test(bi)) {
     erroEl.textContent = 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)';
     erroEl.style.display = 'block'; return;
   }
-
-  // Validar NUIT: 9 dígitos
   if (!/^[0-9]{9}$/.test(nuit)) {
     erroEl.textContent = 'NUIT inválido. Deve ter exactamente 9 dígitos numéricos.';
     erroEl.style.display = 'block'; return;
   }
 
-  // Validar código da escola
   var erroEsc = validarCodigoEscola(escolaCod);
   if (erroEsc) { erroEl.textContent = erroEsc; erroEl.style.display = 'block'; return; }
 
   var btn = document.getElementById('mp-btn');
   btn.textContent = 'A procurar escola...'; btn.disabled = true;
 
-  // Buscar escola pelo código exacto
   var escola = await api('/escolas/codigo/' + encodeURIComponent(escolaCod));
   if (!escola || !escola.id) {
     erroEl.textContent = 'Escola com código "' + escolaCod + '" não encontrada. Registe a escola primeiro.';
@@ -969,13 +1033,10 @@ async function submeterProfessor() {
 
   btn.textContent = 'A guardar...';
 
-  // Gerar número de funcionário automático baseado no NUIT
-  var numeroFuncionario = 'PROF-' + nuit;
-
   var body = {
     nome: nome,
     apelido: apel,
-    numeroFuncionario: numeroFuncionario,
+    numeroFuncionario: 'PROF-' + nuit,
     genero: gen,
     dataNascimento: nasc,
     habilitacao: hab,
@@ -986,56 +1047,53 @@ async function submeterProfessor() {
 
   var r = await api('/professores', { method: 'POST', body: JSON.stringify(body) });
   if (r && r.id) {
-    // Associar disciplinas ao professor
-    if (disciplinas.length) {
-      for (var di = 0; di < disciplinas.length; di++) {
-        await api('/professores/' + r.id + '/disciplinas', {
-          method: 'POST',
-          body: JSON.stringify({ disciplinaId: disciplinas[di] })
-        }).catch(function(){});
-      }
+
+    // Associar disciplinas
+    for (var di = 0; di < disciplinas.length; di++) {
+      await api('/professores/' + r.id + '/disciplinas', {
+        method: 'POST',
+        body: JSON.stringify({ disciplinaId: disciplinas[di] })
+      }).catch(function(){});
     }
 
-    // Associar turmas ao professor na escola
-    if (turmas.length && classes.length) {
+    // Criar/associar turmas seleccionadas
+    if (turmasSel.length) {
       var anoLetivo = new Date().getFullYear();
-      for (var ti = 0; ti < turmas.length; ti++) {
-        for (var ci = 0; ci < classes.length; ci++) {
-          // Verificar se a turma existe, senão criar
-          var turmasExist = await api('/turmas?escolaId=' + escola.id + '&anoLetivo=' + anoLetivo);
-          var turmaExist = null;
-          if (turmasExist && turmasExist.length) {
-            turmaExist = turmasExist.find(function(t) {
-              return t.nome === turmas[ti] && t.classe === classes[ci];
-            });
-          }
-          if (!turmaExist) {
-            turmaExist = await api('/turmas', { method: 'POST', body: JSON.stringify({
-              nome: turmas[ti],
-              classe: classes[ci],
-              turno: 'Manhã',
-              anoLetivo: anoLetivo,
-              escolaId: escola.id,
-              professorId: r.id
-            })}).catch(function(){});
-          }
+      for (var ti = 0; ti < turmasSel.length; ti++) {
+        var t = turmasSel[ti];
+        // Buscar turma existente na escola
+        var turmasExist = await api('/turmas?escolaId=' + escola.id + '&anoLetivo=' + anoLetivo + '&classe=' + t.classe);
+        var turmaExist = null;
+        if (turmasExist && turmasExist.length) {
+          turmaExist = turmasExist.find(function(tx) { return tx.nome === t.nome; });
+        }
+        if (!turmaExist) {
+          turmaExist = await api('/turmas', { method: 'POST', body: JSON.stringify({
+            nome: t.nome,
+            classe: t.classe,
+            turno: 'Manhã',
+            anoLetivo: anoLetivo,
+            escolaId: escola.id,
+            professorId: r.id
+          })}).catch(function(){});
         }
       }
     }
 
     document.querySelector('.modal-overlay').remove();
     var resumo = 'Professor "' + r.nome + ' ' + r.apelido + '" registado!';
-    if (classes.length)    resumo += ' Classes: ' + classes.join(', ') + 'ª.';
     if (disciplinas.length) resumo += ' ' + disciplinas.length + ' disciplina(s).';
-    if (turmas.length)     resumo += ' Turmas: ' + turmas.join(', ') + '.';
+    if (turmasSel.length)   resumo += ' Turmas: ' + turmasSel.map(function(t){ return t.nome; }).join(', ') + '.';
     mostrarSucesso(resumo);
     professores();
+
   } else {
     erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
     erroEl.style.display = 'block';
     btn.textContent = 'Guardar Professor'; btn.disabled = false;
   }
 }
+
 
 
 // ============================================================
