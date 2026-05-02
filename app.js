@@ -787,28 +787,46 @@ async function submeterAluno() {
 }
 
 // ============================================================
+// ============================================================
+// Modal Professor Completo
+// ============================================================
 function showModalProfessorCompleto() {
   var o = document.createElement('div');
   o.className = 'modal-overlay';
 
+  var letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  var turmaOpts = '<option value="">-- Sem turma --</option>';
+  letras.forEach(function(l) { turmaOpts += '<option value="' + l + '">' + l + '</option>'; });
+  for (var n = 1; n <= 9; n++) {
+    letras.forEach(function(l) { turmaOpts += '<option value="' + l + n + '">' + l + n + '</option>'; });
+  }
+
   var html = '';
-  html += '<div class="modal" style="max-width:700px">';
+  html += '<div class="modal" style="max-width:720px">';
   html += '<div class="modal-title">Registar Novo Professor</div>';
   html += '<div class="modal-grid">';
+
+  // Nome e Apelido
   html += '<div class="form-group"><label>Nome *</label><input type="text" id="mp-nome" placeholder="Ex: António"/></div>';
   html += '<div class="form-group"><label>Apelido *</label><input type="text" id="mp-apelido" placeholder="Ex: Mabunda"/></div>';
-  html += '<div class="form-group"><label>Nº Funcionário (SIGEDAP) *</label>';
-  html += '<input type="text" id="mp-func" placeholder="Ex: FUNC-1234" maxlength="20"/></div>';
+
+  // BI
   html += '<div class="form-group"><label>Nº BI *</label>';
-  html += '<input type="text" id="mp-bi" placeholder="Ex: 123456789MZ" maxlength="20"/>';
-  html += '<small style="color:var(--text-muted);font-size:10px">9 dígitos + letras (obrigatório)</small></div>';
-  html += '<div class="form-group"><label>NUIT (opcional)</label>';
+  html += '<input type="text" id="mp-bi" placeholder="Ex: 123456789012A" maxlength="13"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">12 dígitos + 1 letra (ex: 123456789012A)</small></div>';
+
+  // NUIT obrigatório
+  html += '<div class="form-group"><label>NUIT *</label>';
   html += '<input type="text" id="mp-nuit" placeholder="Ex: 400123456" maxlength="9"/>';
-  html += '<small style="color:var(--text-muted);font-size:10px">9 dígitos numéricos</small></div>';
+  html += '<small style="color:var(--text-muted);font-size:10px">9 dígitos numéricos — obrigatório</small></div>';
+
+  // Data nascimento e género
   html += '<div class="form-group"><label>Data de Nascimento *</label><input type="date" id="mp-nasc"/></div>';
   html += '<div class="form-group"><label>Género *</label><select id="mp-gen">';
   html += '<option value="M">Masculino</option><option value="F">Feminino</option>';
   html += '</select></div>';
+
+  // Habilitações e Certificado
   html += '<div class="form-group"><label>Habilitações *</label><select id="mp-hab">';
   html += '<option value="MEDIO">Médio</option>';
   html += '<option value="BACHAREL">Bacharelato</option>';
@@ -819,12 +837,55 @@ function showModalProfessorCompleto() {
   html += '<div class="form-group"><label>Certificado / Diploma</label>';
   html += '<input type="text" id="mp-cert" placeholder="Ex: CFPP Nampula, 2015"/>';
   html += '<small style="color:var(--text-muted);font-size:10px">Instituição e ano de conclusão</small></div>';
+
+  // Email e Telefone
   html += '<div class="form-group"><label>Email</label>';
   html += '<input type="email" id="mp-email" placeholder="professor@mec.gov.mz"/></div>';
   html += '<div class="form-group"><label>Telefone (+258)</label>';
   html += '<input type="tel" id="mp-tel" placeholder="+258 84 000 0000"/></div>';
-  html += '<div class="form-group"><label>ID da Escola</label>';
-  html += '<input type="number" id="mp-escola" placeholder="Nº da escola" min="1"/></div>';
+
+  // Código da Escola
+  html += '<div class="form-group" style="grid-column:1/-1"><label>Código da Escola *</label>';
+  html += '<input type="text" id="mp-escola-cod" placeholder="Ex: NP12345" maxlength="15" oninput="this.value=this.value.toUpperCase()"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">';
+  html += 'MC=Maputo Cidade · MP=Maputo Prov. · GZ=Gaza · IH=Inhambane · SF=Sofala · MN=Manica · TT=Tete · ZB=Zambézia · NP=Nampula · NS=Niassa · CD=Cabo Delgado';
+  html += '</small></div>';
+
+  // Classe(s)
+  html += '<div class="form-group" style="grid-column:1/-1"><label>Classe(s) que Lecciona</label>';
+  html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px">';
+  for (var c = 1; c <= 12; c++) {
+    html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
+    html += '<input type="checkbox" id="mp-classe-' + c + '" value="' + c + '" style="accent-color:var(--accent)"/> ' + c + 'ª Classe</label>';
+  }
+  html += '</div></div>';
+
+  // Disciplina(s)
+  var discs = ['Português','Matemática','Inglês','História','Geografia','Biologia','Física','Química','Educação Física','TIC'];
+  html += '<div class="form-group" style="grid-column:1/-1"><label>Disciplina(s) que Lecciona</label>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px">';
+  discs.forEach(function(d, i) {
+    html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
+    html += '<input type="checkbox" id="mp-disc-' + i + '" value="' + (i+1) + '" style="accent-color:var(--accent)"/> ' + d + '</label>';
+  });
+  html += '</div></div>';
+
+  // Turma(s)
+  html += '<div class="form-group" style="grid-column:1/-1"><label>Turma(s)</label>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
+  var letrasT = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  letrasT.forEach(function(l) {
+    html += '<label style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-secondary);cursor:pointer">';
+    html += '<input type="checkbox" class="mp-turma-cb" value="' + l + '" style="accent-color:var(--accent)"/> ' + l + '</label>';
+  });
+  for (var n2 = 1; n2 <= 3; n2++) {
+    letrasT.forEach(function(l) {
+      html += '<label style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-secondary);cursor:pointer">';
+      html += '<input type="checkbox" class="mp-turma-cb" value="' + l + n2 + '" style="accent-color:var(--accent)"/> ' + l + n2 + '</label>';
+    });
+  }
+  html += '</div></div>';
+
   html += '</div>';
   html += '<div id="mp-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>';
   html += '<div class="modal-footer">';
@@ -841,52 +902,133 @@ async function submeterProfessor() {
   var erroEl = document.getElementById('mp-erro');
   erroEl.style.display = 'none';
 
-  var nome   = document.getElementById('mp-nome').value.trim();
-  var apel   = document.getElementById('mp-apelido').value.trim();
-  var func   = document.getElementById('mp-func').value.trim();
-  var bi     = document.getElementById('mp-bi').value.trim();
-  var nuit   = document.getElementById('mp-nuit').value.trim();
-  var nasc   = document.getElementById('mp-nasc').value;
-  var gen    = document.getElementById('mp-gen').value;
-  var hab    = document.getElementById('mp-hab').value;
-  var email  = document.getElementById('mp-email').value.trim();
-  var tel    = document.getElementById('mp-tel').value.trim();
-  var escola = document.getElementById('mp-escola').value;
+  var nome      = document.getElementById('mp-nome').value.trim();
+  var apel      = document.getElementById('mp-apelido').value.trim();
+  var bi        = document.getElementById('mp-bi').value.trim().toUpperCase();
+  var nuit      = document.getElementById('mp-nuit').value.trim();
+  var nasc      = document.getElementById('mp-nasc').value;
+  var gen       = document.getElementById('mp-gen').value;
+  var hab       = document.getElementById('mp-hab').value;
+  var email     = document.getElementById('mp-email').value.trim();
+  var tel       = document.getElementById('mp-tel').value.trim();
+  var escolaCod = document.getElementById('mp-escola-cod').value.trim().toUpperCase();
 
-  if (!nome)  { erroEl.textContent = 'Nome obrigatório';               erroEl.style.display = 'block'; return; }
-  if (!apel)  { erroEl.textContent = 'Apelido obrigatório';            erroEl.style.display = 'block'; return; }
-  if (!func)  { erroEl.textContent = 'Nº de Funcionário obrigatório';  erroEl.style.display = 'block'; return; }
-  if (!bi)    { erroEl.textContent = 'Nº de BI obrigatório';           erroEl.style.display = 'block'; return; }
-  if (!nasc)  { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
+  // Recolher classes seleccionadas
+  var classes = [];
+  for (var c = 1; c <= 12; c++) {
+    var cb = document.getElementById('mp-classe-' + c);
+    if (cb && cb.checked) classes.push(c);
+  }
 
-  if (!/^[0-9]{9}[A-Z]{1,2}$/.test(bi)) {
-    erroEl.textContent = 'BI inválido. Formato: 9 dígitos + letras (ex: 123456789MZ)';
+  // Recolher disciplinas seleccionadas
+  var disciplinas = [];
+  for (var d = 0; d <= 9; d++) {
+    var db = document.getElementById('mp-disc-' + d);
+    if (db && db.checked) disciplinas.push(parseInt(db.value));
+  }
+
+  // Recolher turmas seleccionadas
+  var turmas = [];
+  document.querySelectorAll('.mp-turma-cb:checked').forEach(function(t) { turmas.push(t.value); });
+
+  // Validações
+  if (!nome)      { erroEl.textContent = 'Nome obrigatório';              erroEl.style.display = 'block'; return; }
+  if (!apel)      { erroEl.textContent = 'Apelido obrigatório';           erroEl.style.display = 'block'; return; }
+  if (!bi)        { erroEl.textContent = 'Nº de BI obrigatório';          erroEl.style.display = 'block'; return; }
+  if (!nuit)      { erroEl.textContent = 'NUIT obrigatório';              erroEl.style.display = 'block'; return; }
+  if (!nasc)      { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
+  if (!escolaCod) { erroEl.textContent = 'Código da escola obrigatório';   erroEl.style.display = 'block'; return; }
+
+  // Validar BI: 12 dígitos + 1 letra
+  if (!/^[0-9]{12}[A-Z]$/.test(bi)) {
+    erroEl.textContent = 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)';
     erroEl.style.display = 'block'; return;
   }
-  if (nuit && !/^[0-9]{9}$/.test(nuit)) {
-    erroEl.textContent = 'NUIT inválido. Deve ter exactamente 9 dígitos.';
+
+  // Validar NUIT: 9 dígitos
+  if (!/^[0-9]{9}$/.test(nuit)) {
+    erroEl.textContent = 'NUIT inválido. Deve ter exactamente 9 dígitos numéricos.';
     erroEl.style.display = 'block'; return;
   }
+
+  // Validar código da escola
+  var erroEsc = validarCodigoEscola(escolaCod);
+  if (erroEsc) { erroEl.textContent = erroEsc; erroEl.style.display = 'block'; return; }
 
   var btn = document.getElementById('mp-btn');
-  btn.textContent = 'A guardar...'; btn.disabled = true;
+  btn.textContent = 'A procurar escola...'; btn.disabled = true;
+
+  // Buscar escola pelo código exacto
+  var escola = await api('/escolas/codigo/' + encodeURIComponent(escolaCod));
+  if (!escola || !escola.id) {
+    erroEl.textContent = 'Escola com código "' + escolaCod + '" não encontrada. Registe a escola primeiro.';
+    erroEl.style.display = 'block';
+    btn.textContent = 'Guardar Professor'; btn.disabled = false;
+    return;
+  }
+
+  btn.textContent = 'A guardar...';
+
+  // Gerar número de funcionário automático baseado no NUIT
+  var numeroFuncionario = 'PROF-' + nuit;
 
   var body = {
     nome: nome,
     apelido: apel,
-    numeroFuncionario: func,
+    numeroFuncionario: numeroFuncionario,
     genero: gen,
     dataNascimento: nasc,
     habilitacao: hab,
-    email:    email  || null,
-    telefone: tel    || null,
-    escolaId: escola ? parseInt(escola) : null,
+    email:    email || null,
+    telefone: tel   || null,
+    escolaId: escola.id,
   };
 
   var r = await api('/professores', { method: 'POST', body: JSON.stringify(body) });
   if (r && r.id) {
+    // Associar disciplinas ao professor
+    if (disciplinas.length) {
+      for (var di = 0; di < disciplinas.length; di++) {
+        await api('/professores/' + r.id + '/disciplinas', {
+          method: 'POST',
+          body: JSON.stringify({ disciplinaId: disciplinas[di] })
+        }).catch(function(){});
+      }
+    }
+
+    // Associar turmas ao professor na escola
+    if (turmas.length && classes.length) {
+      var anoLetivo = new Date().getFullYear();
+      for (var ti = 0; ti < turmas.length; ti++) {
+        for (var ci = 0; ci < classes.length; ci++) {
+          // Verificar se a turma existe, senão criar
+          var turmasExist = await api('/turmas?escolaId=' + escola.id + '&anoLetivo=' + anoLetivo);
+          var turmaExist = null;
+          if (turmasExist && turmasExist.length) {
+            turmaExist = turmasExist.find(function(t) {
+              return t.nome === turmas[ti] && t.classe === classes[ci];
+            });
+          }
+          if (!turmaExist) {
+            turmaExist = await api('/turmas', { method: 'POST', body: JSON.stringify({
+              nome: turmas[ti],
+              classe: classes[ci],
+              turno: 'Manhã',
+              anoLetivo: anoLetivo,
+              escolaId: escola.id,
+              professorId: r.id
+            })}).catch(function(){});
+          }
+        }
+      }
+    }
+
     document.querySelector('.modal-overlay').remove();
-    mostrarSucesso('Professor "' + r.nome + ' ' + r.apelido + '" registado! ID: ' + r.id);
+    var resumo = 'Professor "' + r.nome + ' ' + r.apelido + '" registado!';
+    if (classes.length)    resumo += ' Classes: ' + classes.join(', ') + 'ª.';
+    if (disciplinas.length) resumo += ' ' + disciplinas.length + ' disciplina(s).';
+    if (turmas.length)     resumo += ' Turmas: ' + turmas.join(', ') + '.';
+    mostrarSucesso(resumo);
     professores();
   } else {
     erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
@@ -894,6 +1036,7 @@ async function submeterProfessor() {
     btn.textContent = 'Guardar Professor'; btn.disabled = false;
   }
 }
+
 
 // ============================================================
 // Modal Lançar Nota
