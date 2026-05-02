@@ -760,13 +760,12 @@ async function submeterAluno() {
       var turmas = await api('/turmas?escolaId=' + escola.id + '&anoLetivo=' + anoLetivo);
       var turma = null;
       if (turmas && turmas.length) {
-        var nomeCompleto = classe + (turmaNome ? turmaNome : 'A');
-        turma = turmas.find(function(t) { return t.nome === nomeCompleto; });
+        turma = turmas.find(function(t) { return t.nome === turmaNome; });
       }
       if (!turma) {
         // Criar turma
         turma = await api('/turmas', { method: 'POST', body: JSON.stringify({
-          nome: classe + (turmaNome ? turmaNome : 'A'),
+          nome: turmaNome,
           classe: parseInt(classe),
           turno: 'Manhã', anoLetivo: anoLetivo, escolaId: escola.id
         })});
