@@ -568,27 +568,59 @@ function showModalAlunoCompleto() {
   var hoje = new Date().toISOString().split('T')[0];
   var anoAtual = new Date().getFullYear();
 
+  // Gerar opções de turma: A-Z, A1-Z1, A2-Z2
+  var letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  var turmaOpts = '<option value="">-- Sem turma --</option>';
+  // Série 0: A-Z
+  letras.forEach(function(l) { turmaOpts += '<option value="' + l + '">' + l + '</option>'; });
+  // Séries 1-9: A1-Z1, A2-Z2, ...
+  for (var n = 1; n <= 9; n++) {
+    letras.forEach(function(l) { turmaOpts += '<option value="' + l + n + '">' + l + n + '</option>'; });
+  }
+
   var html = '';
   html += '<div class="modal" style="max-width:680px">';
   html += '<div class="modal-title">Registar Novo Aluno / Nova Matrícula</div>';
   html += '<div class="modal-grid">';
+
+  // Nome e Apelido
   html += '<div class="form-group"><label>Nome *</label><input type="text" id="ma-nome" placeholder="Ex: Ana Beatriz"/></div>';
   html += '<div class="form-group"><label>Apelido *</label><input type="text" id="ma-apelido" placeholder="Ex: Machava"/></div>';
-  html += '<div class="form-group"><label>Nº BI / Cédula Pessoal</label>';
-  html += '<input type="text" id="ma-bi" placeholder="Ex: 123456789MZ" maxlength="20"/>';
-  html += '<small style="color:var(--text-muted);font-size:10px">Formato: 9 dígitos + letras (ex: 123456789MZ)</small></div>';
+
+  // Tipo de documento + número
+  html += '<div class="form-group"><label>Tipo de Documento</label>';
+  html += '<select id="ma-tipo-doc" onchange="actualizarPlaceholderBI()">';
+  html += '<option value="BI">Bilhete de Identidade (BI)</option>';
+  html += '<option value="CEDULA">Cédula Pessoal</option>';
+  html += '<option value="ASSENTO">Assento de Nascimento</option>';
+  html += '</select></div>';
+
+  html += '<div class="form-group"><label>Nº do Documento</label>';
+  html += '<input type="text" id="ma-bi" placeholder="Ex: 123456789012A" maxlength="20"/>';
+  html += '<small id="ma-bi-hint" style="color:var(--text-muted);font-size:10px">BI: 12 dígitos + 1 letra (ex: 123456789012A)</small></div>';
+
+  // Data nascimento e género
   html += '<div class="form-group"><label>Data de Nascimento *</label>';
   html += '<input type="date" id="ma-nasc" max="' + hoje + '"/></div>';
   html += '<div class="form-group"><label>Género *</label><select id="ma-gen">';
   html += '<option value="M">Masculino</option><option value="F">Feminino</option>';
   html += '</select></div>';
-  html += '<div class="form-group"><label>ID da Escola *</label>';
-  html += '<input type="number" id="ma-escola" placeholder="Ver na lista de escolas" min="1"/>';
-  html += '<small style="color:var(--text-muted);font-size:10px">Consulte o ID na lista de Escolas</small></div>';
-  html += '<div class="form-group"><label>ID da Turma (opcional)</label>';
-  html += '<input type="number" id="ma-turma" placeholder="Para matricular numa turma" min="1"/></div>';
+
+  // Código da escola
+  html += '<div class="form-group" style="grid-column:1/-1"><label>Código da Escola *</label>';
+  html += '<input type="text" id="ma-escola-cod" placeholder="Ex: NP12345" maxlength="15" oninput="this.value=this.value.toUpperCase()"/>';
+  html += '<small style="color:var(--text-muted);font-size:10px">';
+  html += 'Prefixos: MC=Maputo Cidade · MP=Maputo Prov. · GZ=Gaza · IH=Inhambane · SF=Sofala · MN=Manica · TT=Tete · ZB=Zambézia · NP=Nampula · NS=Niassa · CD=Cabo Delgado';
+  html += '</small></div>';
+
+  // Turma seleccionável
+  html += '<div class="form-group"><label>Turma</label>';
+  html += '<select id="ma-turma-nome">' + turmaOpts + '</select></div>';
+
+  // Ano lectivo
   html += '<div class="form-group"><label>Ano Lectivo *</label>';
   html += '<input type="number" id="ma-ano" value="' + anoAtual + '" min="2000" max="2099"/></div>';
+
   html += '</div>';
   html += '<div id="ma-erro" style="color:var(--accent-red);font-size:12px;margin-top:8px;display:none"></div>';
   html += '<div class="modal-footer">';
@@ -601,48 +633,137 @@ function showModalAlunoCompleto() {
   document.body.appendChild(o);
 }
 
+function actualizarPlaceholderBI() {
+  var tipo  = document.getElementById('ma-tipo-doc').value;
+  var input = document.getElementById('ma-bi');
+  var hint  = document.getElementById('ma-bi-hint');
+  if (tipo === 'BI') {
+    input.placeholder = 'Ex: 123456789012A';
+    input.maxLength   = 13;
+    hint.textContent  = 'BI: 12 dígitos seguidos de 1 letra (ex: 123456789012A)';
+  } else if (tipo === 'CEDULA') {
+    input.placeholder = 'Ex: 12345';
+    input.maxLength   = 5;
+    hint.textContent  = 'Cédula Pessoal: 3 a 5 dígitos numéricos';
+  } else {
+    input.placeholder = 'Ex: 12345';
+    input.maxLength   = 10;
+    hint.textContent  = 'Assento de Nascimento: número do assento';
+  }
+}
+
+// Prefixos de escola por província
+var PREFIXOS_ESCOLA = {
+  MC: 'Maputo Cidade', MP: 'Maputo Província', GZ: 'Gaza',
+  IH: 'Inhambane', SF: 'Sofala', MN: 'Manica',
+  TT: 'Tete', ZB: 'Zambézia', NP: 'Nampula',
+  NS: 'Niassa', CD: 'Cabo Delgado'
+};
+
+function validarCodigoEscola(cod) {
+  if (!cod) return null;
+  cod = cod.toUpperCase().trim();
+  // Verificar prefixo (2 ou 3 letras) + mínimo 5 dígitos
+  var match = cod.match(/^([A-Z]{2,3})([0-9]{5,})$/);
+  if (!match) return 'Formato inválido. Use prefixo + mínimo 5 dígitos (ex: NP12345)';
+  var prefixo = match[1];
+  if (!PREFIXOS_ESCOLA[prefixo]) {
+    return 'Prefixo desconhecido "' + prefixo + '". Use: ' + Object.keys(PREFIXOS_ESCOLA).join(', ');
+  }
+  return null; // válido
+}
+
 async function submeterAluno() {
   var erroEl = document.getElementById('ma-erro');
   erroEl.style.display = 'none';
 
-  var nome    = document.getElementById('ma-nome').value.trim();
-  var apelido = document.getElementById('ma-apelido').value.trim();
-  var nasc    = document.getElementById('ma-nasc').value;
-  var gen     = document.getElementById('ma-gen').value;
-  var escola  = document.getElementById('ma-escola').value;
-  var bi      = document.getElementById('ma-bi').value.trim();
-  var turmaId = document.getElementById('ma-turma').value;
+  var nome      = document.getElementById('ma-nome').value.trim();
+  var apelido   = document.getElementById('ma-apelido').value.trim();
+  var nasc      = document.getElementById('ma-nasc').value;
+  var gen       = document.getElementById('ma-gen').value;
+  var tipodoc   = document.getElementById('ma-tipo-doc').value;
+  var bi        = document.getElementById('ma-bi').value.trim().toUpperCase();
+  var escolaCod = document.getElementById('ma-escola-cod').value.trim().toUpperCase();
+  var turmaNome = document.getElementById('ma-turma-nome').value;
   var anoLetivo = parseInt(document.getElementById('ma-ano').value);
 
-  if (!nome)    { erroEl.textContent = 'Nome obrigatório';             erroEl.style.display = 'block'; return; }
-  if (!apelido) { erroEl.textContent = 'Apelido obrigatório';          erroEl.style.display = 'block'; return; }
-  if (!nasc)    { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
-  if (!escola)  { erroEl.textContent = 'ID da escola obrigatório';      erroEl.style.display = 'block'; return; }
+  // Validações obrigatórias
+  if (!nome)     { erroEl.textContent = 'Nome obrigatório';              erroEl.style.display = 'block'; return; }
+  if (!apelido)  { erroEl.textContent = 'Apelido obrigatório';           erroEl.style.display = 'block'; return; }
+  if (!nasc)     { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
+  if (!escolaCod){ erroEl.textContent = 'Código da escola obrigatório';   erroEl.style.display = 'block'; return; }
 
-  if (bi && !/^[0-9]{9}[A-Z]{1,2}$/.test(bi)) {
-    erroEl.textContent = 'BI inválido. Formato: 9 dígitos + letras (ex: 123456789MZ)';
-    erroEl.style.display = 'block'; return;
+  // Validar código da escola
+  var erroEscola = validarCodigoEscola(escolaCod);
+  if (erroEscola) { erroEl.textContent = erroEscola; erroEl.style.display = 'block'; return; }
+
+  // Validar documento
+  if (bi) {
+    if (tipodoc === 'BI' && !/^[0-9]{12}[A-Z]$/.test(bi)) {
+      erroEl.textContent = 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)';
+      erroEl.style.display = 'block'; return;
+    }
+    if ((tipodoc === 'CEDULA' || tipodoc === 'ASSENTO') && !/^[0-9]{3,5}$/.test(bi)) {
+      erroEl.textContent = 'Cédula/Assento inválido. Deve ter 3 a 5 dígitos numéricos.';
+      erroEl.style.display = 'block'; return;
+    }
   }
 
   var btn = document.getElementById('ma-btn');
-  btn.textContent = 'A guardar...'; btn.disabled = true;
+  btn.textContent = 'A procurar escola...'; btn.disabled = true;
+
+  // Buscar escola pelo código
+  var escResult = await api('/escolas?search=' + encodeURIComponent(escolaCod) + '&limit=5');
+  var escola = null;
+  if (escResult && escResult.data && escResult.data.length) {
+    escola = escResult.data.find(function(e) {
+      return e.codigo && e.codigo.toUpperCase() === escolaCod;
+    });
+  }
+  if (!escola) {
+    erroEl.textContent = 'Escola com código "' + escolaCod + '" não encontrada. Verifique o código ou registe a escola primeiro.';
+    erroEl.style.display = 'block';
+    btn.textContent = 'Guardar Aluno'; btn.disabled = false;
+    return;
+  }
+
+  btn.textContent = 'A guardar...';
 
   var body = {
     nome: nome,
     apelido: apelido,
     dataNascimento: nasc,
     genero: gen,
-    escolaId: parseInt(escola),
+    escolaId: escola.id,
     numeroBI: bi || null,
   };
 
   var r = await api('/alunos', { method: 'POST', body: JSON.stringify(body) });
   if (r && r.id) {
-    if (turmaId) {
-      await api('/matriculas', { method: 'POST', body: JSON.stringify({ alunoId: r.id, turmaId: parseInt(turmaId), anoLetivo: anoLetivo }) });
+    // Se escolheu turma, criar/associar turma e matricular
+    if (turmaNome) {
+      // Buscar turma existente ou criar
+      var turmas = await api('/turmas?escolaId=' + escola.id + '&anoLetivo=' + anoLetivo);
+      var turma = null;
+      if (turmas && turmas.length) {
+        turma = turmas.find(function(t) { return t.nome === turmaNome; });
+      }
+      if (!turma) {
+        // Criar turma
+        var classeNum = parseInt(turmaNome.replace(/[^0-9]/g, '')) || 1;
+        turma = await api('/turmas', { method: 'POST', body: JSON.stringify({
+          nome: turmaNome, classe: classeNum || 1,
+          turno: 'Manhã', anoLetivo: anoLetivo, escolaId: escola.id
+        })});
+      }
+      if (turma && turma.id) {
+        await api('/matriculas', { method: 'POST', body: JSON.stringify({
+          alunoId: r.id, turmaId: turma.id, anoLetivo: anoLetivo
+        })});
+      }
     }
     document.querySelector('.modal-overlay').remove();
-    mostrarSucesso('Aluno "' + r.nome + ' ' + r.apelido + '" registado! ID: ' + r.id);
+    mostrarSucesso('Aluno "' + r.nome + ' ' + r.apelido + '" registado com sucesso! (ID: ' + r.id + ')');
     alunos();
   } else {
     erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
@@ -651,8 +772,6 @@ async function submeterAluno() {
   }
 }
 
-// ============================================================
-// Modal Professor Completo
 // ============================================================
 function showModalProfessorCompleto() {
   var o = document.createElement('div');
