@@ -712,15 +712,9 @@ async function submeterAluno() {
   var btn = document.getElementById('ma-btn');
   btn.textContent = 'A procurar escola...'; btn.disabled = true;
 
-  // Buscar escola pelo código
-  var escResult = await api('/escolas?search=' + encodeURIComponent(escolaCod) + '&limit=5');
-  var escola = null;
-  if (escResult && escResult.data && escResult.data.length) {
-    escola = escResult.data.find(function(e) {
-      return e.codigo && e.codigo.toUpperCase() === escolaCod;
-    });
-  }
-  if (!escola) {
+  // Buscar escola pelo código exacto
+  var escola = await api('/escolas/codigo/' + encodeURIComponent(escolaCod));
+  if (!escola || !escola.id) {
     erroEl.textContent = 'Escola com código "' + escolaCod + '" não encontrada. Verifique o código ou registe a escola primeiro.';
     erroEl.style.display = 'block';
     btn.textContent = 'Guardar Aluno'; btn.disabled = false;
