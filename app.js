@@ -4,6 +4,43 @@
 // ============================================
 
 var API_URL = 'https://sige-mec-backend-production.up.railway.app/api/v1';
+
+// ============================================================
+// VALIDAÇÃO — Erros por campo
+// ============================================================
+function campoErro(id, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--accent-red)';
+  el.style.boxShadow   = '0 0 0 3px rgba(210,16,52,0.15)';
+  // Remove hint anterior se existir
+  var old = document.getElementById(id + '-err');
+  if (old) old.remove();
+  var hint = document.createElement('small');
+  hint.id = id + '-err';
+  hint.style.cssText = 'color:var(--accent-red);font-size:10px;display:block;margin-top:3px';
+  hint.textContent = msg;
+  el.parentNode.appendChild(hint);
+  el.focus();
+}
+
+function campoOk(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '';
+  el.style.boxShadow   = '';
+  var old = document.getElementById(id + '-err');
+  if (old) old.remove();
+}
+
+function limparErrosCampo() {
+  document.querySelectorAll('[id$="-err"]').forEach(function(e) { e.remove(); });
+  document.querySelectorAll('input, select').forEach(function(e) {
+    e.style.borderColor = '';
+    e.style.boxShadow   = '';
+  });
+}
+
 var accessToken  = null;
 var currentUser  = null;
 var activeCharts = {};
@@ -512,8 +549,7 @@ async function carregarDistritos(provId) {
 }
 
 async function submeterEscola() {
-  var erroEl = document.getElementById('me-erro');
-  erroEl.style.display = 'none';
+  limparErrosCampo();
 
   var codigo = document.getElementById('me-codigo').value.trim();
   var nome   = document.getElementById('me-nome').value.trim();
@@ -521,10 +557,12 @@ async function submeterEscola() {
   var provId = document.getElementById('me-prov').value;
   var distId = document.getElementById('me-dist').value;
 
-  if (!codigo) { erroEl.textContent = 'Código obrigatório'; erroEl.style.display = 'block'; return; }
-  if (!nome)   { erroEl.textContent = 'Nome obrigatório';   erroEl.style.display = 'block'; return; }
-  if (!provId) { erroEl.textContent = 'Seleccione a Província'; erroEl.style.display = 'block'; return; }
-  if (!distId) { erroEl.textContent = 'Seleccione o Distrito';  erroEl.style.display = 'block'; return; }
+  var temErro = false;
+  if (!codigo) { campoErro('me-codigo', 'Código obrigatório'); temErro = true; }
+  if (!nome)   { campoErro('me-nome',   'Nome obrigatório');   temErro = true; }
+  if (!provId) { campoErro('me-prov',   'Seleccione a Província'); temErro = true; }
+  if (!distId) { campoErro('me-dist',   'Seleccione o Distrito');  temErro = true; }
+  if (temErro) return;
 
   var btn = document.getElementById('me-btn');
   btn.textContent = 'A guardar...'; btn.disabled = true;
@@ -552,8 +590,7 @@ async function submeterEscola() {
     mostrarSucesso('Escola "' + r.nome + '" registada com sucesso!');
     escolas();
   } else {
-    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar. Verifique os dados.';
-    erroEl.style.display = 'block';
+    campoErro('me-codigo', (r && r.error) ? r.error : 'Erro ao guardar. Verifique os dados.');
     btn.textContent = 'Guardar Escola'; btn.disabled = false;
   }
 }
@@ -706,26 +743,27 @@ async function submeterAluno() {
   var classe    = document.getElementById('ma-classe').value;
   var anoLetivo = parseInt(document.getElementById('ma-ano').value);
 
-  // Validações obrigatórias
-  if (!nome)     { erroEl.textContent = 'Nome obrigatório';              erroEl.style.display = 'block'; return; }
-  if (!apelido)  { erroEl.textContent = 'Apelido obrigatório';           erroEl.style.display = 'block'; return; }
-  if (!nasc)     { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
-  if (!escolaCod){ erroEl.textContent = 'Código da escola obrigatório';   erroEl.style.display = 'block'; return; }
-  if (!classe)   { erroEl.textContent = 'Seleccione a classe';            erroEl.style.display = 'block'; return; }
+  // Validações obrigatórias — erro por campo
+  limparErrosCampo();
+  var temErro = false;
+  if (!nome)     { campoErro('ma-nome',       'Nome obrigatório');                temErro = true; }
+  if (!apelido)  { campoErro('ma-apelido',    'Apelido obrigatório');             temErro = true; }
+  if (!nasc)     { campoErro('ma-nasc',       'Data de nascimento obrigatória');  temErro = true; }
+  if (!escolaCod){ campoErro('ma-escola-cod', 'Código da escola obrigatório');    temErro = true; }
+  if (!classe)   { campoErro('ma-classe',     'Seleccione a classe');             temErro = true; }
+  if (temErro) return;
 
   // Validar código da escola
   var erroEscola = validarCodigoEscola(escolaCod);
-  if (erroEscola) { erroEl.textContent = erroEscola; erroEl.style.display = 'block'; return; }
+  if (erroEscola) { campoErro('ma-escola-cod', erroEscola); return; }
 
   // Validar documento
   if (bi) {
     if (tipodoc === 'BI' && !/^[0-9]{12}[A-Z]$/.test(bi)) {
-      erroEl.textContent = 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)';
-      erroEl.style.display = 'block'; return;
+      campoErro('ma-bi', 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)'); return;
     }
     if ((tipodoc === 'CEDULA' || tipodoc === 'ASSENTO') && !/^[0-9]{3,5}$/.test(bi)) {
-      erroEl.textContent = 'Cédula/Assento inválido. Deve ter 3 a 5 dígitos numéricos.';
-      erroEl.style.display = 'block'; return;
+      campoErro('ma-bi', 'Cédula/Assento inválido. Deve ter 3 a 5 dígitos numéricos.'); return;
     }
   }
 
@@ -735,8 +773,7 @@ async function submeterAluno() {
   // Buscar escola pelo código exacto
   var escola = await api('/escolas/codigo/' + encodeURIComponent(escolaCod));
   if (!escola || !escola.id) {
-    erroEl.textContent = 'Escola com código "' + escolaCod + '" não encontrada. Verifique o código ou registe a escola primeiro.';
-    erroEl.style.display = 'block';
+    campoErro('ma-escola-cod', 'Escola "' + escolaCod + '" não encontrada. Registe a escola primeiro.');
     btn.textContent = 'Guardar Aluno'; btn.disabled = false;
     return;
   }
@@ -780,8 +817,7 @@ async function submeterAluno() {
     mostrarSucesso('Aluno "' + r.nome + ' ' + r.apelido + '" registado com sucesso! (ID: ' + r.id + ')');
     alunos();
   } else {
-    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
-    erroEl.style.display = 'block';
+    campoErro('ma-nome', (r && r.error) ? r.error : 'Erro ao guardar. Tente novamente.');
     btn.textContent = 'Guardar Aluno'; btn.disabled = false;
   }
 }
@@ -1000,33 +1036,33 @@ async function submeterProfessor() {
     turmasSel.push({ nome: cb.value, classe: parseInt(cb.getAttribute('data-classe')) });
   });
 
-  // Validações
-  if (!nome)      { erroEl.textContent = 'Nome obrigatório';               erroEl.style.display = 'block'; return; }
-  if (!apel)      { erroEl.textContent = 'Apelido obrigatório';            erroEl.style.display = 'block'; return; }
-  if (!bi)        { erroEl.textContent = 'Nº de BI obrigatório';           erroEl.style.display = 'block'; return; }
-  if (!nuit)      { erroEl.textContent = 'NUIT obrigatório';               erroEl.style.display = 'block'; return; }
-  if (!nasc)      { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
-  if (!escolaCod) { erroEl.textContent = 'Código da escola obrigatório';   erroEl.style.display = 'block'; return; }
+  // Validações — erro por campo
+  limparErrosCampo();
+  var temErro = false;
+  if (!nome)      { campoErro('mp-nome',       'Nome obrigatório');               temErro = true; }
+  if (!apel)      { campoErro('mp-apelido',    'Apelido obrigatório');            temErro = true; }
+  if (!bi)        { campoErro('mp-bi',         'Nº de BI obrigatório');           temErro = true; }
+  if (!nuit)      { campoErro('mp-nuit',       'NUIT obrigatório');               temErro = true; }
+  if (!nasc)      { campoErro('mp-nasc',       'Data de nascimento obrigatória'); temErro = true; }
+  if (!escolaCod) { campoErro('mp-escola-cod', 'Código da escola obrigatório');   temErro = true; }
+  if (temErro) return;
 
   if (!/^[0-9]{12}[A-Z]$/.test(bi)) {
-    erroEl.textContent = 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)';
-    erroEl.style.display = 'block'; return;
+    campoErro('mp-bi', 'BI inválido. Formato: 12 dígitos + 1 letra (ex: 123456789012A)'); return;
   }
   if (!/^[0-9]{9}$/.test(nuit)) {
-    erroEl.textContent = 'NUIT inválido. Deve ter exactamente 9 dígitos numéricos.';
-    erroEl.style.display = 'block'; return;
+    campoErro('mp-nuit', 'NUIT inválido. Deve ter exactamente 9 dígitos numéricos.'); return;
   }
 
   var erroEsc = validarCodigoEscola(escolaCod);
-  if (erroEsc) { erroEl.textContent = erroEsc; erroEl.style.display = 'block'; return; }
+  if (erroEsc) { campoErro('mp-escola-cod', erroEsc); return; }
 
   var btn = document.getElementById('mp-btn');
   btn.textContent = 'A procurar escola...'; btn.disabled = true;
 
   var escola = await api('/escolas/codigo/' + encodeURIComponent(escolaCod));
   if (!escola || !escola.id) {
-    erroEl.textContent = 'Escola com código "' + escolaCod + '" não encontrada. Registe a escola primeiro.';
-    erroEl.style.display = 'block';
+    campoErro('mp-escola-cod', 'Escola "' + escolaCod + '" não encontrada. Registe a escola primeiro.');
     btn.textContent = 'Guardar Professor'; btn.disabled = false;
     return;
   }
@@ -1088,8 +1124,7 @@ async function submeterProfessor() {
     professores();
 
   } else {
-    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao guardar.';
-    erroEl.style.display = 'block';
+    campoErro('mp-nome', (r && r.error) ? r.error : 'Erro ao guardar. Tente novamente.');
     btn.textContent = 'Guardar Professor'; btn.disabled = false;
   }
 }
@@ -1157,8 +1192,9 @@ async function submeterNota() {
   var valor        = parseFloat(document.getElementById('mn-nota').value);
   var professorId  = parseInt(document.getElementById('mn-prof').value) || 1;
 
-  if (!alunoId || isNaN(alunoId)) { erroEl.textContent = 'ID do aluno inválido'; erroEl.style.display = 'block'; return; }
-  if (isNaN(valor) || valor < 0 || valor > 20) { erroEl.textContent = 'Nota deve ser entre 0 e 20'; erroEl.style.display = 'block'; return; }
+  limparErrosCampo();
+  if (!alunoId || isNaN(alunoId)) { campoErro('mn-aluno', 'ID do aluno inválido'); return; }
+  if (isNaN(valor) || valor < 0 || valor > 20) { campoErro('mn-nota', 'Nota deve ser entre 0 e 20'); return; }
 
   var btn = document.getElementById('mn-btn');
   btn.textContent = 'A lançar...'; btn.disabled = true;
@@ -1171,8 +1207,7 @@ async function submeterNota() {
     mostrarSucesso('Nota lançada: ' + r.valor + ' — ' + (r.disciplina ? r.disciplina.nome : '') + ' — ' + (r.aluno ? r.aluno.nome : ''));
     notas();
   } else {
-    erroEl.textContent = (r && r.error) ? r.error : 'Erro ao lançar nota.';
-    erroEl.style.display = 'block';
+    campoErro('mn-nota', (r && r.error) ? r.error : 'Erro ao lançar nota. Tente novamente.');
     btn.textContent = 'Lançar Nota'; btn.disabled = false;
   }
 }
