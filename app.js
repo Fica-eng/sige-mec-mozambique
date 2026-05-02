@@ -613,6 +613,24 @@ function showModalAlunoCompleto() {
   html += 'Prefixos: MC=Maputo Cidade · MP=Maputo Prov. · GZ=Gaza · IH=Inhambane · SF=Sofala · MN=Manica · TT=Tete · ZB=Zambézia · NP=Nampula · NS=Niassa · CD=Cabo Delgado';
   html += '</small></div>';
 
+  // Classe
+  html += '<div class="form-group"><label>Classe *</label>';
+  html += '<select id="ma-classe">';
+  html += '<option value="">-- Seleccione a Classe --</option>';
+  html += '<option value="1">1ª Classe</option>';
+  html += '<option value="2">2ª Classe</option>';
+  html += '<option value="3">3ª Classe</option>';
+  html += '<option value="4">4ª Classe</option>';
+  html += '<option value="5">5ª Classe</option>';
+  html += '<option value="6">6ª Classe</option>';
+  html += '<option value="7">7ª Classe</option>';
+  html += '<option value="8">8ª Classe</option>';
+  html += '<option value="9">9ª Classe</option>';
+  html += '<option value="10">10ª Classe</option>';
+  html += '<option value="11">11ª Classe</option>';
+  html += '<option value="12">12ª Classe</option>';
+  html += '</select></div>';
+
   // Turma seleccionável
   html += '<div class="form-group"><label>Turma</label>';
   html += '<select id="ma-turma-nome">' + turmaOpts + '</select></div>';
@@ -685,6 +703,7 @@ async function submeterAluno() {
   var bi        = document.getElementById('ma-bi').value.trim().toUpperCase();
   var escolaCod = document.getElementById('ma-escola-cod').value.trim().toUpperCase();
   var turmaNome = document.getElementById('ma-turma-nome').value;
+  var classe    = document.getElementById('ma-classe').value;
   var anoLetivo = parseInt(document.getElementById('ma-ano').value);
 
   // Validações obrigatórias
@@ -692,6 +711,7 @@ async function submeterAluno() {
   if (!apelido)  { erroEl.textContent = 'Apelido obrigatório';           erroEl.style.display = 'block'; return; }
   if (!nasc)     { erroEl.textContent = 'Data de nascimento obrigatória'; erroEl.style.display = 'block'; return; }
   if (!escolaCod){ erroEl.textContent = 'Código da escola obrigatório';   erroEl.style.display = 'block'; return; }
+  if (!classe)   { erroEl.textContent = 'Seleccione a classe';            erroEl.style.display = 'block'; return; }
 
   // Validar código da escola
   var erroEscola = validarCodigoEscola(escolaCod);
@@ -740,13 +760,14 @@ async function submeterAluno() {
       var turmas = await api('/turmas?escolaId=' + escola.id + '&anoLetivo=' + anoLetivo);
       var turma = null;
       if (turmas && turmas.length) {
-        turma = turmas.find(function(t) { return t.nome === turmaNome; });
+        var nomeCompleto = classe + (turmaNome ? turmaNome : 'A');
+        turma = turmas.find(function(t) { return t.nome === nomeCompleto; });
       }
       if (!turma) {
         // Criar turma
-        var classeNum = parseInt(turmaNome.replace(/[^0-9]/g, '')) || 1;
         turma = await api('/turmas', { method: 'POST', body: JSON.stringify({
-          nome: turmaNome, classe: classeNum || 1,
+          nome: classe + (turmaNome ? turmaNome : 'A'),
+          classe: parseInt(classe),
           turno: 'Manhã', anoLetivo: anoLetivo, escolaId: escola.id
         })});
       }
