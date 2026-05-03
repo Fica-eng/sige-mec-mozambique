@@ -882,15 +882,30 @@ function showModalProfessorCompleto() {
   html += 'MC=Maputo Cidade · MP=Maputo Prov. · GZ=Gaza · IH=Inhambane · SF=Sofala · MN=Manica · TT=Tete · ZB=Zambézia · NP=Nampula · NS=Niassa · CD=Cabo Delgado';
   html += '</small></div>';
 
-  // Disciplinas (seleccionar primeiro)
-  var discs = ['Português','Matemática','Inglês','História','Geografia','Biologia','Física','Química','Educação Física','TIC'];
+  // Disciplinas — id, nome e prefixo definidos no mesmo lugar
+  var DISCS = [
+    { id:1,  nome:'Português',          pref:'P'  },
+    { id:2,  nome:'Matemática',         pref:'M'  },
+    { id:3,  nome:'Inglês',             pref:'I'  },
+    { id:4,  nome:'História',           pref:'H'  },
+    { id:5,  nome:'Geografia',          pref:'G'  },
+    { id:6,  nome:'Biologia',           pref:'B'  },
+    { id:7,  nome:'Física',             pref:'F'  },
+    { id:8,  nome:'Química',            pref:'Q'  },
+    { id:9,  nome:'Educação Física',    pref:'EF' },
+    { id:10, nome:'TIC',                pref:'TI' },
+  ];
   html += '<div class="form-group" style="grid-column:1/-1">';
   html += '<label>Disciplina(s) que Lecciona <small style="color:var(--text-muted)">(seleccione para gerar turmas)</small></label>';
   html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px">';
-  discs.forEach(function(d, i) {
+  DISCS.forEach(function(d) {
     html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
-    html += '<input type="checkbox" class="mp-disc-cb" id="mp-disc-' + i + '" value="' + (i+1) + '"';
-    html += ' onchange="gerarTurmasProfessor()" style="accent-color:var(--accent)"/> ' + d + '</label>';
+    html += '<input type="checkbox" class="mp-disc-cb"';
+    html += ' value="' + d.id + '"';
+    html += ' data-nome="' + d.nome + '"';
+    html += ' data-pref="' + d.pref + '"';
+    html += ' onchange="gerarTurmasProfessor()"';
+    html += ' style="accent-color:var(--accent)"/> ' + d.nome + '</label>';
   });
   html += '</div></div>';
 
@@ -951,11 +966,14 @@ function gerarTurmasProfessor() {
   var container = document.getElementById('mp-turmas-container');
   if (!container) return;
 
-  // Recolher disciplinas seleccionadas
+  // Recolher disciplinas seleccionadas com nome e prefixo dos data attributes
   var disciplinas = [];
   document.querySelectorAll('.mp-disc-cb:checked').forEach(function(cb) {
-    var id = parseInt(cb.value);
-    disciplinas.push({ id: id, prefixo: DISC_PREFIXOS[id] || 'X', nome: DISC_NOMES[id-1] });
+    disciplinas.push({
+      id:     parseInt(cb.value),
+      prefixo: cb.getAttribute('data-pref') || cb.value,
+      nome:    cb.getAttribute('data-nome')  || cb.value
+    });
   });
 
   // Recolher classes seleccionadas
