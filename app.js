@@ -977,13 +977,14 @@ function gerarTurmasProfessor() {
   var container = document.getElementById('mp-turmas-container');
   if (!container) return;
 
-  // Recolher disciplinas seleccionadas com nome e prefixo dos data attributes
+  // Recolher disciplinas seleccionadas — usar DISC_PREFIXOS e DISC_NOMES globais
   var disciplinas = [];
   document.querySelectorAll('.mp-disc-cb:checked').forEach(function(cb) {
+    var id = parseInt(cb.value);
     disciplinas.push({
-      id:     parseInt(cb.value),
-      prefixo: cb.getAttribute('data-pref') || cb.value,
-      nome:    cb.getAttribute('data-nome')  || cb.value
+      id:      id,
+      prefixo: DISC_PREFIXOS[id],
+      nome:    DISC_NOMES[id - 1]
     });
   });
 
