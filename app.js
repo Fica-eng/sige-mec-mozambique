@@ -906,17 +906,11 @@ function showModalProfessorCompleto() {
   html += '<label>Disciplina(s) que Lecciona <small style="color:var(--text-muted)">(seleccione para gerar turmas)</small></label>';
   html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px">';
   DISCS.forEach(function(d) {
-    var cbId = 'mp-disc-' + d.id;
-    html += '<label for="' + cbId + '" style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
-    html += '<input type="checkbox"';
-    html += ' id="'        + cbId   + '"';
-    html += ' class="mp-disc-cb"';
-    html += ' value="'     + d.id   + '"';
-    html += ' data-nome="' + d.nome + '"';
-    html += ' data-pref="' + d.pref + '"';
-    html += ' onchange="gerarTurmasProfessor()"';
-    html += ' style="accent-color:var(--accent)"/>';
-    html += ' ' + d.nome + '</label>';
+    var cbId = 'disc' + d.id + '_' + Math.random().toString(36).substr(2,5);
+    html += '<label for="' + cbId + '" style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer;padding:4px;border-radius:4px">';
+    html += '<input type="checkbox" id="' + cbId + '" class="mp-disc-cb" value="' + d.id + '" onchange="gerarTurmasProfessor()" style="accent-color:var(--accent);flex-shrink:0"/>';
+    html += '<span>' + d.nome + '</span>';
+    html += '</label>';
   });
   html += '</div></div>';
 
@@ -977,15 +971,27 @@ function gerarTurmasProfessor() {
   var container = document.getElementById('mp-turmas-container');
   if (!container) return;
 
-  // Recolher disciplinas seleccionadas — usar DISC_PREFIXOS e DISC_NOMES globais
+  // Mapa local dentro da função — sem depender de variáveis globais
+  var discMap = {
+    1:  { nome:'Português',       pref:'P'  },
+    2:  { nome:'Matemática',      pref:'M'  },
+    3:  { nome:'Inglês',          pref:'I'  },
+    4:  { nome:'História',        pref:'H'  },
+    5:  { nome:'Geografia',       pref:'G'  },
+    6:  { nome:'Biologia',        pref:'B'  },
+    7:  { nome:'Física',          pref:'F'  },
+    8:  { nome:'Química',         pref:'Q'  },
+    9:  { nome:'Educação Física', pref:'EF' },
+    10: { nome:'TIC',             pref:'TI' }
+  };
+
   var disciplinas = [];
   document.querySelectorAll('.mp-disc-cb:checked').forEach(function(cb) {
     var id = parseInt(cb.value);
-    disciplinas.push({
-      id:      id,
-      prefixo: DISC_PREFIXOS[id],
-      nome:    DISC_NOMES[id - 1]
-    });
+    var disc = discMap[id];
+    if (disc) {
+      disciplinas.push({ id: id, prefixo: disc.pref, nome: disc.nome });
+    }
   });
 
   // Recolher classes seleccionadas
