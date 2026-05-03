@@ -599,6 +599,9 @@ async function submeterEscola() {
 // Modal Aluno Completo
 // ============================================================
 function showModalAlunoCompleto() {
+  var existing = document.querySelector('.modal-overlay');
+  if (existing) existing.remove();
+
   var o = document.createElement('div');
   o.className = 'modal-overlay';
 
@@ -830,6 +833,10 @@ async function submeterAluno() {
 // Modal Professor Completo — com turmas dinâmicas
 // ============================================================
 function showModalProfessorCompleto() {
+  // Remover modal anterior se existir
+  var existing = document.querySelector('.modal-overlay');
+  if (existing) existing.remove();
+
   var o = document.createElement('div');
   o.className = 'modal-overlay';
 
@@ -899,13 +906,17 @@ function showModalProfessorCompleto() {
   html += '<label>Disciplina(s) que Lecciona <small style="color:var(--text-muted)">(seleccione para gerar turmas)</small></label>';
   html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px">';
   DISCS.forEach(function(d) {
-    html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
-    html += '<input type="checkbox" class="mp-disc-cb"';
-    html += ' value="' + d.id + '"';
+    var cbId = 'mp-disc-' + d.id;
+    html += '<label for="' + cbId + '" style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer">';
+    html += '<input type="checkbox"';
+    html += ' id="'        + cbId   + '"';
+    html += ' class="mp-disc-cb"';
+    html += ' value="'     + d.id   + '"';
     html += ' data-nome="' + d.nome + '"';
     html += ' data-pref="' + d.pref + '"';
     html += ' onchange="gerarTurmasProfessor()"';
-    html += ' style="accent-color:var(--accent)"/> ' + d.nome + '</label>';
+    html += ' style="accent-color:var(--accent)"/>';
+    html += ' ' + d.nome + '</label>';
   });
   html += '</div></div>';
 
@@ -1153,6 +1164,9 @@ async function submeterProfessor() {
 // Modal Lançar Nota
 // ============================================================
 function showModalNota() {
+  var existing = document.querySelector('.modal-overlay');
+  if (existing) existing.remove();
+
   var o = document.createElement('div');
   o.className = 'modal-overlay';
   var anoAtual = new Date().getFullYear();
