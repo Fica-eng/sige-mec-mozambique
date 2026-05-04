@@ -346,18 +346,338 @@ async function pesqProfs(q) {
 }
 
 // ======= NOTAS =======
+// Estado global das notas
+// ======= NOTAS E AVALIAÇÕES =======
+var notasEstado = {
+  turmaId: null, disciplinaId: null,
+  trimestre: 1,  anoLetivo: new Date().getFullYear(),
+  turmaNome: '', classe: 0,
+  matriculas: [], disciplinas: [],
+  professorId: 1
+};
+
 async function notas() {
   document.getElementById('page-content').innerHTML = loading();
-  var data = await api('/notas?limit=50');
-  if (!data) { document.getElementById('page-content').innerHTML = erro(); return; }
-  document.getElementById('page-content').innerHTML =
-    '<div class="section-title">Notas e Avaliações</div><p class="section-desc">Lançamento e consulta de notas.</p>' +
-    '<div class="table-card"><div class="table-header"><span class="table-title">Notas Lançadas</span><button class="btn btn-gold btn-sm" onclick="showModalNota()">Lançar em Lote</button></div>' +
-    '<table class="data-table"><thead><tr><th>Aluno</th><th>Disciplina</th><th>Trimestre</th><th>Nota</th><th>Resultado</th></tr></thead><tbody>' +
-    (data.length?data.map(function(n){
-      return '<tr><td><strong style="color:var(--text-primary)">'+(n.aluno?n.aluno.nome+' '+n.aluno.apelido:'—')+'</strong></td><td>'+(n.disciplina?n.disciplina.nome:'—')+'</td><td style="font-family:var(--font-mono)">'+n.trimestre+'º Trim.</td><td style="font-family:var(--font-mono);'+(n.valor<10?'color:var(--accent-red)':'')+'">'+n.valor+'</td><td><span class="badge '+(n.valor>=10?'badge-green':'badge-red')+'">'+(n.valor>=10?'Aprovado':'Reprovado')+'</span></td></tr>';
-    }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhuma nota lançada</td></tr>') +
-    '</tbody></table></div>';
+  var ano    = notasEstado.anoLetivo;
+  var turmas = await api('/turmas?anoLetivo=' + ano);
+
+  if (!turmas || !turmas.length) {
+    document.getElementById('page-content').innerHTML =
+      '<div class="section-title">Notas e Avaliações</div>' +
+      '<div class="alert alert-warning">Nenhuma turma encontrada para ' + ano + '. Registe turmas primeiro.</div>';
+    return;
+  }
+
+  // Agrupar por classe
+  var porClasse = {};
+  turmas.forEach(function(t) {
+    var c = t.classe;
+    if (!porClasse[c]) porClasse[c] = [];
+    porClasse[c].push(t);
+  });
+
+  var html = '';
+  html += '<div class="section-title">Notas e Avaliações</div>';
+  html += '<p class="section-desc">Seleccione a classe e a turma para lançar notas.</p>';
+
+  // Selector trimestre + ano
+  html += '<div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap;background:var(--bg-card);padding:14px 18px;border-radius:10px;border:1px solid var(--border)">';
+  html += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted)">Trimestre:</div>';
+  html += '<div style="display:flex;gap:8px">';
+  [1,2,3].forEach(function(t) {
+    html += '<button id="btn-trim-'+t+'" onclick="notasEstado.trimestre='+t+';[1,2,3].forEach(function(x){var b=document.getElementById(\'btn-trim-\'+x);b.className=\'btn \'+(x==='+t+'?\'btn-primary\':\'btn-outline\');});"';
+    html += ' class="btn ' + (t===1?'btn-primary':'btn-outline') + '">' + t + 'º Trim.</button>';
+  });
+  html += '</div>';
+  html += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted)">Ano:</div>';
+  html += '<select onchange="notasEstado.anoLetivo=parseInt(this.value);notas()" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);padding:7px 10px;font-size:13px">';
+  html += '<option value="'+ano+'">'+ano+'</option>';
+  html += '<option value="'+(ano-1)+'">'+(ano-1)+'</option>';
+  html += '</select>';
+  html += '</div>';
+
+  // Cards por classe e turma
+  Object.keys(porClasse).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(classe) {
+    html += '<div style="margin-bottom:24px">';
+    html += '<div style="font-size:14px;font-weight:700;color:#fff;background:var(--accent);padding:8px 16px;border-radius:8px;display:inline-block;margin-bottom:12px">';
+    html += classe + 'ª Classe</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:12px">';
+    porClasse[classe].forEach(function(turma) {
+      html += '<div onclick="abrirTurmaNotas('+turma.id+',\''+turma.nome+'\','+turma.classe+')"';
+      html += ' style="background:var(--bg-card);border:2px solid var(--border);border-radius:12px;padding:20px 28px;cursor:pointer;text-align:center;transition:all 0.2s;min-width:110px"';
+      html += ' onmouseover="this.style.borderColor=\'var(--accent)\';this.style.boxShadow=\'0 4px 16px rgba(0,79,163,0.15)\';this.style.transform=\'translateY(-2px)\'"';
+      html += ' onmouseout="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\';this.style.transform=\'none\'">';
+      html += '<div style="font-size:28px;font-weight:700;color:var(--accent);font-family:var(--font-mono)">'+turma.nome+'</div>';
+      html += '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px">Turma</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  document.getElementById('page-content').innerHTML = html;
+}
+
+async function abrirTurmaNotas(turmaId, turmaNome, classe) {
+  document.getElementById('page-content').innerHTML = loading();
+  notasEstado.turmaId  = turmaId;
+  notasEstado.turmaNome = turmaNome;
+  notasEstado.classe    = classe;
+
+  // Buscar alunos matriculados na turma
+  var matriculas = await api('/matriculas?turmaId=' + turmaId + '&anoLetivo=' + notasEstado.anoLetivo);
+  notasEstado.matriculas = matriculas || [];
+
+  // Buscar disciplinas do professor logado via /auth/me
+  var disciplinas = [];
+  if (currentUser && currentUser.role === 'PROFESSOR') {
+    var meData = await api('/auth/me');
+    if (meData && meData.professor && meData.professor.disciplinas && meData.professor.disciplinas.length) {
+      disciplinas = meData.professor.disciplinas.map(function(d) { return d.disciplina; });
+    }
+    // Alternativa: buscar por email na lista de professores
+    if (!disciplinas.length) {
+      var profData = await api('/professores?limit=500');
+      if (profData && profData.data) {
+        var meProf = profData.data.find(function(p) {
+          return p.email && currentUser.email && p.email.toLowerCase() === currentUser.email.toLowerCase();
+        });
+        if (meProf && meProf.disciplinas && meProf.disciplinas.length) {
+          disciplinas = meProf.disciplinas.map(function(d) { return d.disciplina; });
+          // Guardar professorId no estado
+          notasEstado.professorId = meProf.id;
+        }
+      }
+    }
+  }
+  // Admins e directores vêem todas as disciplinas
+  if (!disciplinas.length) {
+    disciplinas = [
+      {id:1,nome:'Português'},{id:2,nome:'Matemática'},{id:3,nome:'Inglês'},
+      {id:4,nome:'História'},{id:5,nome:'Geografia'},{id:6,nome:'Biologia'},
+      {id:7,nome:'Física'},{id:8,nome:'Química'},{id:9,nome:'Educação Física'},{id:10,nome:'TIC'}
+    ];
+  }
+  notasEstado.disciplinas = disciplinas;
+
+  var html = '';
+  // Navegação
+  html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">';
+  html += '<button class="btn btn-outline" onclick="notas()">← Voltar</button>';
+  html += '<div>';
+  html += '<div class="section-title" style="margin:0">'+classe+'ª Classe — Turma '+turmaNome+'</div>';
+  html += '<div class="section-desc" style="margin:0">'+notasEstado.trimestre+'º Trimestre · '+notasEstado.anoLetivo+'</div>';
+  html += '</div></div>';
+
+  // Disciplinas disponíveis
+  html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:20px">';
+  html += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px">Seleccione a Disciplina</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
+  disciplinas.forEach(function(d) {
+    html += '<button onclick="abrirDisciplinaNotas('+turmaId+','+d.id+',\''+d.nome+'\',\''+turmaNome+'\','+classe+')"';
+    html += ' class="btn btn-outline" style="font-size:13px;padding:8px 16px">'+d.nome+'</button>';
+  });
+  html += '</div></div>';
+
+  // Pré-visualização da lista de alunos
+  if (notasEstado.matriculas.length) {
+    var ordenados = notasEstado.matriculas.slice().sort(function(a,b) {
+      return (a.aluno.apelido+a.aluno.nome).localeCompare(b.aluno.apelido+b.aluno.nome);
+    });
+    html += '<div class="table-card">';
+    html += '<div class="table-header"><span class="table-title">Alunos ('+ordenados.length+')</span></div>';
+    html += '<table class="data-table"><thead><tr><th>Nº</th><th>Nome</th><th>Género</th></tr></thead><tbody>';
+    ordenados.forEach(function(m,i) {
+      html += '<tr>';
+      html += '<td style="font-family:var(--font-mono);color:var(--text-muted)">'+(i+1)+'</td>';
+      html += '<td><strong style="color:var(--text-primary)">'+m.aluno.apelido+', '+m.aluno.nome+'</strong></td>';
+      html += '<td><span class="badge '+(m.aluno.genero==='F'?'badge-gold':'badge-blue')+'">'+(m.aluno.genero==='F'?'Fem.':'Masc.')+'</span></td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  } else {
+    html += '<div class="alert alert-warning">Nenhum aluno matriculado nesta turma.</div>';
+  }
+
+  document.getElementById('page-content').innerHTML = html;
+}
+
+async function abrirDisciplinaNotas(turmaId, disciplinaId, disciplinaNome, turmaNome, classe) {
+  notasEstado.disciplinaId   = disciplinaId;
+  notasEstado.disciplinaNome = disciplinaNome;
+  document.getElementById('page-content').innerHTML = loading();
+
+  // Buscar notas já lançadas
+  var notasExist = await api('/notas?turmaId='+turmaId+'&disciplinaId='+disciplinaId+'&anoLetivo='+notasEstado.anoLetivo+'&trimestre='+notasEstado.trimestre);
+  var notasMap = {};
+  if (notasExist) {
+    notasExist.forEach(function(n) { notasMap[n.alunoId] = n; });
+  }
+
+  // Ordenar alunos alfabeticamente
+  var alunos = (notasEstado.matriculas || []).slice().sort(function(a,b) {
+    return (a.aluno.apelido+a.aluno.nome).localeCompare(b.aluno.apelido+b.aluno.nome);
+  });
+  notasEstado.alunosActuais = alunos;
+
+  var html = '';
+  // Navegação
+  html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">';
+  html += '<button class="btn btn-outline" onclick="abrirTurmaNotas('+turmaId+',\''+turmaNome+'\','+classe+')">← Voltar</button>';
+  html += '<div>';
+  html += '<div class="section-title" style="margin:0">'+disciplinaNome+' — '+classe+'ª Classe, Turma '+turmaNome+'</div>';
+  html += '<div class="section-desc" style="margin:0">'+notasEstado.trimestre+'º Trimestre · '+notasEstado.anoLetivo+'</div>';
+  html += '</div>';
+  html += '<button class="btn btn-primary" style="margin-left:auto" onclick="guardarTodasNotas('+turmaId+','+disciplinaId+')">💾 Guardar Todas as Notas</button>';
+  html += '</div>';
+
+  // Legenda das avaliações
+  html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)">';
+  html += '<strong>Legenda:</strong> Av1 = Avaliação 1 &nbsp;|&nbsp; Av2 = Avaliação 2 &nbsp;|&nbsp; Av3 = Avaliação 3 &nbsp;|&nbsp; APT = Avaliação Final do Trimestre &nbsp;|&nbsp; Média calculada automaticamente (escala 0–20)';
+  html += '</div>';
+
+  // Tabela de notas
+  html += '<div class="table-card">';
+  html += '<div class="table-header">';
+  html += '<span class="table-title">Lançamento de Notas ('+alunos.length+' alunos)</span>';
+  html += '<button class="btn btn-outline btn-sm" onclick="exportarExcel(\'notas\')">📊 Exportar Excel</button>';
+  html += '</div>';
+
+  html += '<table class="data-table" style="min-width:700px">';
+  html += '<thead><tr>';
+  html += '<th style="width:30px">Nº</th>';
+  html += '<th>Nome Completo</th>';
+  html += '<th style="width:80px;text-align:center">Av1<br><small style="font-weight:400;color:var(--text-muted)">(0–20)</small></th>';
+  html += '<th style="width:80px;text-align:center">Av2<br><small style="font-weight:400;color:var(--text-muted)">(0–20)</small></th>';
+  html += '<th style="width:80px;text-align:center">Av3<br><small style="font-weight:400;color:var(--text-muted)">(0–20)</small></th>';
+  html += '<th style="width:80px;text-align:center">APT<br><small style="font-weight:400;color:var(--text-muted)">(0–20)</small></th>';
+  html += '<th style="width:70px;text-align:center">Média</th>';
+  html += '<th style="width:80px;text-align:center">Result.</th>';
+  html += '</tr></thead><tbody>';
+
+  alunos.forEach(function(m, i) {
+    var aId  = m.aluno.id;
+    var nota = notasMap[aId];
+    // Tentar reconstituir valores anteriores — guardamos como valor único (média)
+    // Se já existe nota, pré-preencher APT com o valor existente
+    var aptVal = nota ? nota.valor : '';
+
+    html += '<tr id="linha-'+aId+'">';
+    html += '<td style="font-family:var(--font-mono);color:var(--text-muted);text-align:center">'+(i+1)+'</td>';
+    html += '<td>';
+    html += '<strong style="color:var(--text-primary)">'+m.aluno.apelido+', '+m.aluno.nome+'</strong>';
+    html += '</td>';
+
+    // Campos Av1, Av2, Av3, APT
+    ['av1','av2','av3','apt'].forEach(function(campo) {
+      var val = campo === 'apt' && aptVal !== '' ? aptVal : '';
+      html += '<td style="padding:6px 4px">';
+      html += '<input type="number" id="'+campo+'-'+aId+'"';
+      html += ' min="0" max="20" step="0.1"';
+      html += ' value="'+val+'"';
+      html += ' onchange="calcularMedia(\''+aId+'\')"';
+      html += ' style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:13px;font-family:var(--font-mono);text-align:center;color:var(--text-primary)"';
+      html += ' placeholder="—"/>';
+      html += '</td>';
+    });
+
+    // Média e resultado (calculados automaticamente)
+    html += '<td style="text-align:center" id="media-'+aId+'">';
+    if (aptVal !== '') {
+      var m2 = parseFloat(aptVal);
+      html += '<strong style="font-family:var(--font-mono);color:'+(m2>=10?'var(--accent)':'var(--accent-red)')+'">'+m2.toFixed(1)+'</strong>';
+    } else {
+      html += '<span style="color:var(--text-muted)">—</span>';
+    }
+    html += '</td>';
+    html += '<td style="text-align:center" id="result-'+aId+'">';
+    if (aptVal !== '') {
+      var m3 = parseFloat(aptVal);
+      html += '<span class="badge '+(m3>=10?'badge-green':'badge-red')+'">'+(m3>=10?'APR':'REP')+'</span>';
+    } else {
+      html += '<span style="color:var(--text-muted)">—</span>';
+    }
+    html += '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('page-content').innerHTML = html;
+}
+
+// Calcular média automaticamente ao digitar
+function calcularMedia(aId) {
+  var vals = ['av1','av2','av3','apt'].map(function(c) {
+    var v = parseFloat(document.getElementById(c+'-'+aId).value);
+    return isNaN(v) ? null : v;
+  }).filter(function(v) { return v !== null; });
+
+  var mediaEl  = document.getElementById('media-'+aId);
+  var resultEl = document.getElementById('result-'+aId);
+  if (!vals.length) {
+    mediaEl.innerHTML  = '<span style="color:var(--text-muted)">—</span>';
+    resultEl.innerHTML = '<span style="color:var(--text-muted)">—</span>';
+    return;
+  }
+  var media = Math.round((vals.reduce(function(s,v){return s+v;},0) / vals.length) * 10) / 10;
+  var cor   = media >= 10 ? 'var(--accent)' : 'var(--accent-red)';
+  mediaEl.innerHTML  = '<strong style="font-family:var(--font-mono);color:'+cor+'">'+media.toFixed(1)+'</strong>';
+  resultEl.innerHTML = '<span class="badge '+(media>=10?'badge-green':'badge-red')+'">'+(media>=10?'APR':'REP')+'</span>';
+}
+
+async function guardarTodasNotas(turmaId, disciplinaId) {
+  var alunos = notasEstado.alunosActuais || [];
+  if (!alunos.length) { alert('Nenhum aluno para guardar.'); return; }
+
+  var btn = document.querySelector('[onclick*="guardarTodasNotas"]');
+  if (btn) { btn.textContent = 'A guardar...'; btn.disabled = true; }
+
+  var lote = [];
+  var erros = [];
+
+  alunos.forEach(function(m) {
+    var aId = m.aluno.id;
+    var vals = ['av1','av2','av3','apt'].map(function(c) {
+      var v = parseFloat(document.getElementById(c+'-'+aId).value);
+      return isNaN(v) ? null : v;
+    }).filter(function(v) { return v !== null; });
+
+    if (!vals.length) return; // Sem notas, ignorar
+
+    // Validar intervalo
+    vals.forEach(function(v) {
+      if (v < 0 || v > 20) erros.push('Nota inválida ('+v+') para '+m.aluno.apelido+' '+m.aluno.nome);
+    });
+
+    var media = Math.round((vals.reduce(function(s,v){return s+v;},0) / vals.length) * 10) / 10;
+    lote.push({
+      alunoId:      aId,
+      disciplinaId: disciplinaId,
+      anoLetivo:    notasEstado.anoLetivo,
+      trimestre:    notasEstado.trimestre,
+      valor:        media,
+      professorId:  notasEstado.professorId || 1
+    });
+  });
+
+  if (erros.length) {
+    alert('Erros:\n' + erros.join('\n'));
+    if (btn) { btn.textContent = '💾 Guardar Todas as Notas'; btn.disabled = false; }
+    return;
+  }
+  if (!lote.length) {
+    alert('Nenhuma nota preenchida.');
+    if (btn) { btn.textContent = '💾 Guardar Todas as Notas'; btn.disabled = false; }
+    return;
+  }
+
+  var r = await api('/notas/lote', { method: 'POST', body: JSON.stringify({ notas: lote, professorId: 1 }) });
+  if (r && r.total !== undefined) {
+    mostrarSucesso(r.total + ' notas guardadas com sucesso!');
+    if (btn) { btn.textContent = '✅ Guardado!'; btn.disabled = false; }
+  } else {
+    alert('Erro: ' + (r && r.error ? r.error : 'Erro desconhecido'));
+    if (btn) { btn.textContent = '💾 Guardar Todas as Notas'; btn.disabled = false; }
+  }
 }
 
 // ======= MATRÍCULAS =======
