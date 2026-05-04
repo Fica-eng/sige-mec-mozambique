@@ -122,15 +122,14 @@ body {
 }
 
 .logo-emblem {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, var(--accent) 0%, #007A35 100%);
-  border-radius: 12px;
+  width: 84px;
+  height: 84px;
+  background: transparent;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0 24px rgba(0,154,68,0.3);
 }
 
 .logo-star {
